@@ -172,6 +172,16 @@ tailwind.config = {
 </div>
 </div>
 
+<div id="task-details-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+<div class="bg-white border-2 border-charcoal p-6 w-full max-w-2xl max-h-[calc(100vh-4rem)] overflow-y-auto">
+<h2 class="text-xl font-bold mb-4">Task Details</h2>
+<div id="task-details-content" class="space-y-3 text-sm"></div>
+<div class="flex justify-end gap-2 mt-4">
+<button type="button" id="close-details-btn" class="px-4 py-2 border-2 border-charcoal font-bold hover:bg-charcoal hover:text-white transition-colors">Close</button>
+</div>
+</div>
+</div>
+
 <script>
 const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -242,7 +252,7 @@ function getDueDateBadge(dueDate) {
 function renderTasks(listId, tasks) {
     const el = document.getElementById(listId);
     el.innerHTML = tasks.map(task => `
-        <div class="task-card bg-white border-2 border-charcoal p-3 cursor-pointer" onclick="editTask('${task._id}')">
+        <div class="task-card bg-white border-2 border-charcoal p-3 cursor-pointer" onclick="viewTask('${task._id}')">
             <h4 class="font-bold text-sm">${task.title}</h4>
             <p class="text-xs text-gray-600 mt-1">${task.description || ''}</p>
             <div class="text-xs mt-1 space-y-1">
@@ -253,7 +263,10 @@ function renderTasks(listId, tasks) {
             </div>
             <div class="flex justify-between items-center mt-2">
                 <span class="text-xs px-2 py-0.5 border ${getPriorityColor(task.priority)}">${task.priority}</span>
-                <button onclick="deleteTask('${task._id}', event)" class="text-red-600 text-xs">Delete</button>
+                <div class="flex gap-2">
+                    <button onclick="event.stopPropagation(); editTask('${task._id}')" class="text-xs text-primary font-bold">Edit</button>
+                    <button onclick="event.stopPropagation(); deleteTask('${task._id}', event)" class="text-red-600 text-xs">Delete</button>
+                </div>
             </div>
         </div>
     `).join('');
@@ -272,6 +285,39 @@ function openTaskModal(status) {
 
 function closeTaskModal() {
     document.getElementById('task-modal').classList.add('hidden');
+}
+
+async function viewTask(id) {
+    try {
+        const res = await fetch('/api/tasks/' + id, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const task = await res.json();
+        const content = document.getElementById('task-details-content');
+        content.innerHTML = `
+            <div><span class="font-bold">Title:</span> ${task.title}</div>
+            <div><span class="font-bold">Description:</span> ${task.description || 'N/A'}</div>
+            <div><span class="font-bold">Status:</span> ${task.status}</div>
+            <div><span class="font-bold">Priority:</span> ${task.priority}</div>
+            <div><span class="font-bold">Assignee:</span> ${task.assignee ? task.assignee.name || 'User' : 'Unassigned'}</div>
+            <div><span class="font-bold">Coordinator:</span> ${task.coordinator || 'N/A'}</div>
+            <div><span class="font-bold">Due Date:</span> ${task.dueDate ? new Date(task.dueDate).toLocaleString() : 'N/A'}</div>
+            <div><span class="font-bold">Start Date:</span> ${task.startDate ? new Date(task.startDate).toLocaleString() : 'N/A'}</div>
+            <div><span class="font-bold">End Date:</span> ${task.endDate ? new Date(task.endDate).toLocaleString() : 'N/A'}</div>
+            <div><span class="font-bold">Recurring:</span> ${task.recurring || 'None'}</div>
+            <div><span class="font-bold">Subtasks:</span> ${task.subtasks && task.subtasks.length > 0 ? task.subtasks.filter(s => s.completed).length + '/' + task.subtasks.length + ' completed' : 'None'}</div>
+            <div><span class="font-bold">Attachments:</span> ${task.attachments && task.attachments.length > 0 ? task.attachments.map(a => `<a href="${a.url}" target="_blank" class="text-primary">${a.name}</a>`).join(', ') : 'None'}</div>
+            <div><span class="font-bold">Comments:</span> ${task.comments && task.comments.length > 0 ? task.comments.length : 'None'}</div>
+            <div><span class="font-bold">Time Spent:</span> ${Math.round((task.totalTimeSpent || 0) / 60)}h</div>
+        `;
+        document.getElementById('task-details-modal').classList.remove('hidden');
+    } catch (err) {
+        console.log('Error loading task details');
+    }
+}
+
+function closeDetailsModal() {
+    document.getElementById('task-details-modal').classList.add('hidden');
 }
 
 async function editTask(id) {
@@ -442,6 +488,14 @@ document.getElementById('logout-btn').addEventListener('click', () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     window.location.href = 'index.html';
+});
+
+document.getElementById('close-details-btn').addEventListener('click', closeDetailsModal);
+
+document.getElementById('task-details-modal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('task-details-modal')) {
+        closeDetailsModal();
+    }
 });
 
 loadTasks();
