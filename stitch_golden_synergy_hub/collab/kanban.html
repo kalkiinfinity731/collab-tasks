@@ -688,6 +688,22 @@ document.getElementById('task-form').addEventListener('submit', async (e) => {
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify(task)
     });
+    
+    let data = null;
+    if (res.ok) {
+        data = await res.json();
+        document.getElementById('task-id').value = data._id;
+        document.getElementById('modal-title').textContent = 'Edit Task';
+    }
+    
+    const modal = document.getElementById('task-modal');
+    modal.classList.add('hidden');
+    await loadTasks();
+    
+    if (data && data._id) {
+        editTask(data._id);
+    }
+});
     if (res.ok) {
         const data = await res.json();
         document.getElementById('task-id').value = data._id;
