@@ -561,26 +561,31 @@ document.getElementById('task-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('task-id').value;
     const task = {
-        title: document.getElementById('task-title').value,
-        description: document.getElementById('task-desc').value,
-        priority: document.getElementById('task-priority').value,
-        status: document.getElementById('task-status-select').value,
+        title: document.getElementById('task-title').value || 'Untitled Task',
+        description: document.getElementById('task-desc').value || '',
+        priority: document.getElementById('task-priority').value || 'medium',
+        status: document.getElementById('task-status-select').value || 'todo',
         dueDate: document.getElementById('task-due').value || null,
         startDate: document.getElementById('task-start').value || null,
         endDate: document.getElementById('task-end').value || null,
         coordinator: document.getElementById('task-coordinator').value || '',
-        recurring: document.getElementById('task-recurring').value,
+        recurring: document.getElementById('task-recurring').value || 'none',
         assignee: document.getElementById('task-assignee').value || null
     };
     
     const method = id ? 'PUT' : 'POST';
     const url = id ? '/api/tasks/' + id : '/api/tasks';
     
-    await fetch(url, {
+    const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify(task)
     });
+    if (res.ok) {
+        const data = await res.json();
+        document.getElementById('task-id').value = data._id;
+        document.getElementById('modal-title').textContent = 'Edit Task';
+    }
     closeTaskModal();
     loadTasks();
 });
