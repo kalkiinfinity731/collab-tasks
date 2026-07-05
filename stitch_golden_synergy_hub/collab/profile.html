@@ -143,6 +143,10 @@ const user = JSON.parse(localStorage.getItem('user') || '{}');
 document.getElementById('name').value = user.name || '';
 document.getElementById('email').value = user.email || '';
 document.getElementById('designation').value = user.designation || user.role || '';
+const initialDesignation = document.getElementById('designation').value;
+if (initialDesignation) {
+    document.getElementById('designation-text').textContent = initialDesignation.charAt(0).toUpperCase() + initialDesignation.slice(1).replace(/_/g, ' ');
+}
 document.getElementById('companyName').value = user.companyName || '';
 document.getElementById('teamName').value = user.teamName || '';
 document.getElementById('roomCode').value = user.roomCode || '';
@@ -151,6 +155,55 @@ document.getElementById('userType').value = user.userType || 'personal_team';
 document.getElementById('generate-room-btn').addEventListener('click', () => {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     document.getElementById('roomCode').value = code;
+});
+
+document.getElementById('designation-btn').addEventListener('click', () => {
+    document.getElementById('designation-modal').classList.remove('hidden');
+    document.getElementById('modal-overlay').classList.remove('hidden');
+});
+
+document.getElementById('cancel-designation').addEventListener('click', () => {
+    document.getElementById('designation-modal').classList.add('hidden');
+    document.getElementById('modal-overlay').classList.add('hidden');
+});
+
+document.getElementById('modal-overlay').addEventListener('click', () => {
+    document.getElementById('designation-modal').classList.add('hidden');
+    document.getElementById('modal-overlay').classList.add('hidden');
+});
+
+document.getElementById('others-radio').addEventListener('change', () => {
+    if (document.getElementById('others-radio').checked) {
+        document.getElementById('custom-designation-container').classList.remove('hidden');
+        document.getElementById('custom-designation').focus();
+    }
+});
+
+document.querySelectorAll('input[name="designation"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+        if (radio.value !== 'others') {
+            document.getElementById('custom-designation-container').classList.add('hidden');
+        }
+    });
+});
+
+document.getElementById('save-designation').addEventListener('click', () => {
+    const selected = document.querySelector('input[name="designation"]:checked');
+    if (selected) {
+        let designationValue = selected.value;
+        if (designationValue === 'others') {
+            const customValue = document.getElementById('custom-designation').value.trim();
+            if (!customValue) {
+                alert('Please enter your designation');
+                return;
+            }
+            designationValue = customValue;
+        }
+        document.getElementById('designation').value = designationValue;
+        document.getElementById('designation-text').textContent = designationValue.charAt(0).toUpperCase() + designationValue.slice(1).replace(/_/g, ' ');
+        document.getElementById('designation-modal').classList.add('hidden');
+        document.getElementById('modal-overlay').classList.add('hidden');
+    }
 });
 
 document.getElementById('logout-btn').addEventListener('click', (e) => {
