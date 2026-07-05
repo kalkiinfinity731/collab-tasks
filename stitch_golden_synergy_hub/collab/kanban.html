@@ -174,6 +174,7 @@ tailwind.config = {
 </form>
 </div>
 </div>
+</div>
 
 <div id="task-details-modal" class="hidden fixed inset-0 z-[70]">
 <div class="absolute inset-0 bg-black" id="details-backdrop"></div>
@@ -288,10 +289,36 @@ function openTaskModal(status) {
     document.getElementById('subtasks-list').innerHTML = '';
     document.getElementById('attachments-list').innerHTML = '';
     document.getElementById('comments-list').innerHTML = '';
+    document.getElementById('task-id').value = '';
 }
 
 function closeTaskModal() {
     document.getElementById('task-modal').classList.add('hidden');
+}
+
+async function ensureTaskId() {
+    let id = document.getElementById('task-id').value;
+    if (id) return id;
+    const task = {
+        title: document.getElementById('task-title').value || 'Untitled Task',
+        description: document.getElementById('task-desc').value || '',
+        priority: document.getElementById('task-priority').value || 'medium',
+        status: document.getElementById('task-status-select').value || 'todo',
+        dueDate: document.getElementById('task-due').value || null,
+        startDate: document.getElementById('task-start').value || null,
+        endDate: document.getElementById('task-end').value || null,
+        coordinator: document.getElementById('task-coordinator').value || '',
+        recurring: document.getElementById('task-recurring').value || 'none',
+        assignee: document.getElementById('task-assignee').value || null
+    };
+    const res = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(task)
+    });
+    const data = await res.json();
+    document.getElementById('task-id').value = data._id;
+    return data._id;
 }
 
 async function viewTask(id) {
@@ -387,11 +414,10 @@ function renderComments(comments) {
     `).join('');
 }
 
-document.getElementById('add-subtask-btn').addEventListener('click', () => {
+document.getElementById('add-subtask-btn').addEventListener('click', async () => {
     const title = prompt('Subtask title:');
     if (!title) return;
-    const id = document.getElementById('task-id').value;
-    if (!id) { alert('Save task first'); return; }
+    const id = document.getElementById('task-id').value || await ensureTaskId();
     fetch('/api/tasks/' + id + '/subtasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
@@ -399,29 +425,28 @@ document.getElementById('add-subtask-btn').addEventListener('click', () => {
     }).then(r => r.json()).then(task => renderSubtasks(task.subtasks || []));
 });
 
-window.removeSubtask = (index) => {
-    const id = document.getElementById('task-id').value;
+window.removeSubtask = async (index) => {
+    const id = document.getElementById('task-id').value || await ensureTaskId();
     fetch('/api/tasks/' + id + '/subtasks/' + index, {
         method: 'DELETE',
         headers: { 'Authorization': 'Bearer ' + token }
     }).then(r => r.json()).then(task => renderSubtasks(task.subtasks || []));
 };
 
-window.toggleSubtask = (index) => {
-    const id = document.getElementById('task-id').value;
+window.toggleSubtask = async (index) => {
+    const id = document.getElementById('task-id').value || await ensureTaskId();
     fetch('/api/tasks/' + id + '/subtasks/' + index, {
         method: 'PATCH',
         headers: { 'Authorization': 'Bearer ' + token }
     }).then(r => r.json()).then(task => renderSubtasks(task.subtasks || []));
 };
 
-document.getElementById('add-attachment-btn').addEventListener('click', () => {
+document.getElementById('add-attachment-btn').addEventListener('click', async () => {
     const name = prompt('Attachment name:');
     if (!name) return;
     const url = prompt('Attachment URL:');
     if (!url) return;
-    const id = document.getElementById('task-id').value;
-    if (!id) { alert('Save task first'); return; }
+    const id = document.getElementById('task-id').value || await ensureTaskId();
     fetch('/api/tasks/' + id + '/attachments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
@@ -429,19 +454,18 @@ document.getElementById('add-attachment-btn').addEventListener('click', () => {
     }).then(r => r.json()).then(task => renderAttachments(task.attachments || []));
 });
 
-window.removeAttachment = (index) => {
-    const id = document.getElementById('task-id').value;
+window.removeAttachment = async (index) => {
+    const id = document.getElementById('task-id').value || await ensureTaskId();
     fetch('/api/tasks/' + id + '/attachments/' + index, {
         method: 'DELETE',
         headers: { 'Authorization': 'Bearer ' + token }
     }).then(r => r.json()).then(task => renderAttachments(task.attachments || []));
 };
 
-document.getElementById('add-comment-btn').addEventListener('click', () => {
+document.getElementById('add-comment-btn').addEventListener('click', async () => {
     const text = document.getElementById('comment-input').value.trim();
     if (!text) return;
-    const id = document.getElementById('task-id').value;
-    if (!id) { alert('Save task first'); return; }
+    const id = document.getElementById('task-id').value || await ensureTaskId();
     fetch('/api/tasks/' + id + '/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
