@@ -704,14 +704,6 @@ document.getElementById('task-form').addEventListener('submit', async (e) => {
         editTask(data._id);
     }
 });
-    if (res.ok) {
-        const data = await res.json();
-        document.getElementById('task-id').value = data._id;
-        document.getElementById('modal-title').textContent = 'Edit Task';
-    }
-    closeTaskModal();
-    loadTasks();
-});
 
 document.getElementById('logout-btn').addEventListener('click', () => {
     localStorage.removeItem('token');
