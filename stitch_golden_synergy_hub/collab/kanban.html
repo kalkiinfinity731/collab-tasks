@@ -191,6 +191,18 @@ tailwind.config = {
 </div>
 </div>
 
+<div id="input-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center">
+<div class="absolute inset-0 bg-black" id="input-modal-backdrop"></div>
+<div class="relative w-full max-w-md bg-white border-2 border-charcoal shadow-[6px_6px_0px_0px_#1F2937] p-6">
+<h3 class="font-bold text-lg text-charcoal mb-4" id="input-modal-title">Input</h3>
+<input type="text" id="input-modal-value" class="w-full border-2 border-charcoal px-4 py-2 mb-4 focus:border-primary"/>
+<div class="flex justify-end gap-2">
+<button type="button" id="input-modal-cancel" class="px-4 py-2 border-2 border-charcoal font-bold hover:bg-charcoal hover:text-white transition-colors">Cancel</button>
+<button type="button" id="input-modal-ok" class="px-4 py-2 bg-primary-container text-charcoal border-2 border-charcoal font-bold hover:bg-primary transition-colors">OK</button>
+</div>
+</div>
+</div>
+
 <script>
 const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -327,7 +339,7 @@ async function ensureTaskId() {
 }
 
 async function addSubtask() {
-    const title = prompt('Subtask title:');
+    const title = await showInputModal('Subtask title');
     if (!title) return;
     try {
         const id = document.getElementById('task-id').value || await ensureTaskId();
@@ -375,9 +387,9 @@ async function toggleSubtaskWrapper(index) {
 }
 
 async function addAttachment() {
-    const name = prompt('Attachment name:');
+    const name = await showInputModal('Attachment name');
     if (!name) return;
-    const url = prompt('Attachment URL:');
+    const url = await showInputModal('Attachment URL');
     if (!url) return;
     try {
         const id = document.getElementById('task-id').value || await ensureTaskId();
@@ -552,7 +564,7 @@ async function ensureTaskId() {
 }
 
 async function addSubtask() {
-    const title = prompt('Subtask title:');
+    const title = await showInputModal('Subtask title');
     if (!title) return;
     try {
         const id = document.getElementById('task-id').value || await ensureTaskId();
@@ -600,9 +612,9 @@ async function toggleSubtaskWrapper(index) {
 }
 
 async function addAttachment() {
-    const name = prompt('Attachment name:');
+    const name = await showInputModal('Attachment name');
     if (!name) return;
-    const url = prompt('Attachment URL:');
+    const url = await showInputModal('Attachment URL');
     if (!url) return;
     try {
         const id = document.getElementById('task-id').value || await ensureTaskId();
@@ -724,6 +736,51 @@ document.getElementById('task-details-modal').addEventListener('click', (e) => {
 document.getElementById('add-subtask-btn').addEventListener('click', addSubtask);
 document.getElementById('add-attachment-btn').addEventListener('click', addAttachment);
 document.getElementById('add-comment-btn').addEventListener('click', addComment);
+
+function showInputModal(title, defaultValue = '') {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('input-modal');
+        const titleEl = document.getElementById('input-modal-title');
+        const input = document.getElementById('input-modal-value');
+        const okBtn = document.getElementById('input-modal-ok');
+        const cancelBtn = document.getElementById('input-modal-cancel');
+        
+        titleEl.textContent = title;
+        input.value = defaultValue;
+        modal.classList.remove('hidden');
+        input.focus();
+        
+        function cleanup() {
+            modal.classList.add('hidden');
+            okBtn.replaceWith(okBtn.cloneNode(true));
+            cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+        }
+        
+        okBtn.addEventListener('click', () => {
+            cleanup();
+            resolve(input.value);
+        });
+        
+        cancelBtn.addEventListener('click', () => {
+            cleanup();
+            resolve(null);
+        });
+        
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                cleanup();
+                resolve(input.value);
+            } else if (e.key === 'Escape') {
+                cleanup();
+                resolve(null);
+            }
+        });
+    });
+}
+
+document.getElementById('input-modal-backdrop').addEventListener('click', () => {
+    document.getElementById('input-modal').classList.add('hidden');
+});
 
 loadTasks();
 setInterval(loadTasks, 3000);
