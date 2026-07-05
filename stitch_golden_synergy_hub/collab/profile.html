@@ -107,6 +107,17 @@ tailwind.config = {
 <input type="text" id="teamName" class="w-full border-2 border-charcoal px-4 py-2 focus:border-primary"/>
 </div>
 <div>
+<label class="block font-bold text-sm mb-2">Team Type</label>
+<select id="userType" class="w-full border-2 border-charcoal px-4 py-2 focus:border-primary">
+<option value="student">Student</option>
+<option value="office">Office</option>
+<option value="personal_team">Personal Team</option>
+<option value="family">Family</option>
+<option value="event_team">Event Organising Team</option>
+<option value="others">Others</option>
+</select>
+</div>
+<div>
 <label class="block font-bold text-sm mb-2">Room Code</label>
 <div class="flex gap-2">
 <input type="text" id="roomCode" readonly class="flex-1 border-2 border-charcoal px-4 py-2 bg-surface focus:border-primary"/>
@@ -135,6 +146,7 @@ document.getElementById('designation').value = user.designation || user.role || 
 document.getElementById('companyName').value = user.companyName || '';
 document.getElementById('teamName').value = user.teamName || '';
 document.getElementById('roomCode').value = user.roomCode || '';
+document.getElementById('userType').value = user.userType || 'personal_team';
 
 document.getElementById('generate-room-btn').addEventListener('click', () => {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -161,7 +173,8 @@ document.getElementById('profile-form').addEventListener('submit', async (e) => 
                 designation: document.getElementById('designation').value,
                 companyName: document.getElementById('companyName').value,
                 teamName: document.getElementById('teamName').value,
-                roomCode: document.getElementById('roomCode').value
+                roomCode: document.getElementById('roomCode').value,
+                userType: document.getElementById('userType').value
             })
         });
         const data = await res.json();

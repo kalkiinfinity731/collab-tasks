@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, userType } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Please provide all required fields' });
@@ -21,7 +21,8 @@ const register = async (req, res) => {
     const user = await User.create({
       name,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      userType: userType || 'personal_team'
     });
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
@@ -38,7 +39,8 @@ const register = async (req, res) => {
         designation: user.designation,
         companyName: user.companyName,
         teamName: user.teamName,
-        roomCode: user.roomCode
+        roomCode: user.roomCode,
+        userType: user.userType
       }
     });
   } catch (error) {
@@ -78,7 +80,8 @@ const login = async (req, res) => {
         designation: user.designation,
         companyName: user.companyName,
         teamName: user.teamName,
-        roomCode: user.roomCode
+        roomCode: user.roomCode,
+        userType: user.userType
       }
     });
   } catch (error) {
@@ -106,6 +109,7 @@ const updateProfile = async (req, res) => {
     if (req.body.companyName !== undefined) updates.companyName = req.body.companyName;
     if (req.body.teamName !== undefined) updates.teamName = req.body.teamName;
     if (req.body.roomCode !== undefined) updates.roomCode = req.body.roomCode;
+    if (req.body.userType) updates.userType = req.body.userType;
     
     const user = await User.findByIdAndUpdate(req.userId, updates, { new: true });
     if (!user) {
