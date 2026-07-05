@@ -1,4 +1,9 @@
-# Collab - Task Collaboration Tool
+Intern Details 
+Intern ID: CITS3867 
+Name: Nandhini A 
+No. of Weeks: 4 Weeks # Collab - Task Collaboration Tool
+
+Project name: Collab (Task-collabration tool)
 
 A full stack web development project featuring Kanban-style task collaboration for teams. Create, track, and organize tasks with start/end dates, deadlines, and coordinators.
 
