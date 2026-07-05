@@ -1,10 +1,12 @@
-#Intern Details 
+# Intern Details 
 
 Intern ID: CITS3867 
 
 Name: Nandhini A 
 
-No. of Weeks: 4 Weeks # Collab - Task Collaboration Tool
+No. of Weeks: 4 Weeks 
+
+# Collab - Task Collaboration Tool
 
 Project name: Collab (Task-collabration tool)
 
