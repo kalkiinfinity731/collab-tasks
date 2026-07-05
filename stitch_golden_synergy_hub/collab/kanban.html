@@ -341,7 +341,7 @@ async function viewTask(id) {
             <div><span class="font-bold">Recurring:</span> ${task.recurring || 'None'}</div>
             <div><span class="font-bold">Subtasks:</span> ${task.subtasks && task.subtasks.length > 0 ? task.subtasks.filter(s => s.completed).length + '/' + task.subtasks.length + ' completed' : 'None'}</div>
             <div><span class="font-bold">Attachments:</span> ${task.attachments && task.attachments.length > 0 ? task.attachments.map(a => `<a href="${a.url}" target="_blank" class="text-primary">${a.name}</a>`).join(', ') : 'None'}</div>
-            <div><span class="font-bold">Comments:</span> ${task.comments && task.comments.length > 0 ? task.comments.map(c => `<div><strong>${c.author}:</strong> ${c.text} <span class="text-gray-400">${new Date(c.createdAt).toLocaleString()}</span></div>`).join('') : 'None'}</div>
+            <div><span class="font-bold">Comments:</span> ${task.comments && task.comments.length > 0 ? task.comments.map(c => `<div class="border-b border-gray-200 pb-1"><strong>${c.author}:</strong> ${c.text} <span class="text-gray-400">${new Date(c.createdAt).toLocaleString()}</span></div>`).join('') : 'None'}</div>
             <div><span class="font-bold">Time Spent:</span> ${Math.round((task.totalTimeSpent || 0) / 60)}h</div>
         `;
         document.getElementById('task-details-modal').classList.remove('hidden');
