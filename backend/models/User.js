@@ -8,6 +8,9 @@ if (!process.env.SKIP_MONGODB) {
     password: { type: String, required: true },
     role: { type: String, enum: ['user', 'admin', 'team_lead'], default: 'user' },
     designation: { type: String, default: 'team_member' },
+    companyName: { type: String, default: '' },
+    teamName: { type: String, default: '' },
+    roomCode: { type: String, default: '' },
     workspaces: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' }],
     createdAt: { type: Date, default: Date.now }
   });
@@ -30,7 +33,7 @@ if (!process.env.SKIP_MONGODB) {
       users[idx] = { ...users[idx], ...updates };
       return Promise.resolve({ ...users[idx], select: () => { const u = { ...users[idx] }; delete u.password; return u; } });
     },
-    create: (data) => { const user = { _id: String(nextId++), ...data, designation: data.designation || 'team_member', createdAt: new Date() }; users.push(user); return Promise.resolve({ ...user, select: () => { const u = { ...user }; delete u.password; return u; } }); }
+    create: (data) => { const user = { _id: String(nextId++), ...data, designation: data.designation || 'team_member', companyName: data.companyName || '', teamName: data.teamName || '', roomCode: data.roomCode || '', createdAt: new Date() }; users.push(user); return Promise.resolve({ ...user, select: () => { const u = { ...user }; delete u.password; return u; } }); }
   };
   UserModel.findOne = UserModel.findOne.bind(UserModel);
   User = UserModel;

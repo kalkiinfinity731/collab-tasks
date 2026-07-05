@@ -34,7 +34,11 @@ const register = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        designation: user.designation,
+        companyName: user.companyName,
+        teamName: user.teamName,
+        roomCode: user.roomCode
       }
     });
   } catch (error) {
@@ -70,7 +74,11 @@ const login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        designation: user.designation,
+        companyName: user.companyName,
+        teamName: user.teamName,
+        roomCode: user.roomCode
       }
     });
   } catch (error) {
@@ -95,6 +103,9 @@ const updateProfile = async (req, res) => {
     const updates = {};
     if (req.body.name) updates.name = req.body.name;
     if (req.body.designation) updates.designation = req.body.designation;
+    if (req.body.companyName !== undefined) updates.companyName = req.body.companyName;
+    if (req.body.teamName !== undefined) updates.teamName = req.body.teamName;
+    if (req.body.roomCode !== undefined) updates.roomCode = req.body.roomCode;
     
     const user = await User.findByIdAndUpdate(req.userId, updates, { new: true });
     if (!user) {

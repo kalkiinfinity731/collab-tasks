@@ -98,6 +98,21 @@ tailwind.config = {
 <div id="modal-overlay" class="hidden fixed inset-0 bg-black/30 z-40"></div>
 
 <input type="hidden" id="designation" value=""/>
+<div>
+<label class="block font-bold text-sm mb-2">Company Name</label>
+<input type="text" id="companyName" class="w-full border-2 border-charcoal px-4 py-2 focus:border-primary"/>
+</div>
+<div>
+<label class="block font-bold text-sm mb-2">Team Name</label>
+<input type="text" id="teamName" class="w-full border-2 border-charcoal px-4 py-2 focus:border-primary"/>
+</div>
+<div>
+<label class="block font-bold text-sm mb-2">Room Code</label>
+<div class="flex gap-2">
+<input type="text" id="roomCode" readonly class="flex-1 border-2 border-charcoal px-4 py-2 bg-surface focus:border-primary"/>
+<button type="button" id="generate-room-btn" class="border-2 border-charcoal px-4 py-2 font-bold hover:bg-charcoal hover:text-white transition-colors">Generate</button>
+</div>
+</div>
 <div id="errorMsg" class="text-error text-sm hidden"></div>
 <button type="submit" class="w-full bg-primary-container text-charcoal font-bold py-3 px-4 border-2 border-charcoal">
 Save Profile
@@ -117,54 +132,13 @@ const user = JSON.parse(localStorage.getItem('user') || '{}');
 document.getElementById('name').value = user.name || '';
 document.getElementById('email').value = user.email || '';
 document.getElementById('designation').value = user.designation || user.role || '';
+document.getElementById('companyName').value = user.companyName || '';
+document.getElementById('teamName').value = user.teamName || '';
+document.getElementById('roomCode').value = user.roomCode || '';
 
-document.getElementById('designation-btn').addEventListener('click', () => {
-    document.getElementById('designation-modal').classList.remove('hidden');
-    document.getElementById('modal-overlay').classList.remove('hidden');
-});
-
-document.getElementById('cancel-designation').addEventListener('click', () => {
-    document.getElementById('designation-modal').classList.add('hidden');
-    document.getElementById('modal-overlay').classList.add('hidden');
-});
-
-document.getElementById('modal-overlay').addEventListener('click', () => {
-    document.getElementById('designation-modal').classList.add('hidden');
-    document.getElementById('modal-overlay').classList.add('hidden');
-});
-
-document.getElementById('others-radio').addEventListener('change', () => {
-    if (document.getElementById('others-radio').checked) {
-        document.getElementById('custom-designation-container').classList.remove('hidden');
-        document.getElementById('custom-designation').focus();
-    }
-});
-
-document.querySelectorAll('input[name="designation"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-        if (radio.value !== 'others') {
-            document.getElementById('custom-designation-container').classList.add('hidden');
-        }
-    });
-});
-
-document.getElementById('save-designation').addEventListener('click', () => {
-    const selected = document.querySelector('input[name="designation"]:checked');
-    if (selected) {
-        let designationValue = selected.value;
-        if (designationValue === 'others') {
-            const customValue = document.getElementById('custom-designation').value.trim();
-            if (!customValue) {
-                alert('Please enter your designation');
-                return;
-            }
-            designationValue = customValue;
-        }
-        document.getElementById('designation').value = designationValue;
-        document.getElementById('designation-text').textContent = designationValue.charAt(0).toUpperCase() + designationValue.slice(1).replace(/_/g, ' ');
-        document.getElementById('designation-modal').classList.add('hidden');
-        document.getElementById('modal-overlay').classList.add('hidden');
-    }
+document.getElementById('generate-room-btn').addEventListener('click', () => {
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    document.getElementById('roomCode').value = code;
 });
 
 document.getElementById('logout-btn').addEventListener('click', (e) => {
@@ -184,7 +158,10 @@ document.getElementById('profile-form').addEventListener('submit', async (e) => 
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
             body: JSON.stringify({
                 name: document.getElementById('name').value,
-                designation: document.getElementById('designation').value
+                designation: document.getElementById('designation').value,
+                companyName: document.getElementById('companyName').value,
+                teamName: document.getElementById('teamName').value,
+                roomCode: document.getElementById('roomCode').value
             })
         });
         const data = await res.json();
