@@ -68,10 +68,14 @@ tailwind.config = {
 <p>Please <a href="index.html" class="text-primary font-bold">login</a> to continue.</p>
 </div>
 
-<div id="task-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-<div class="bg-white border-2 border-charcoal p-6 w-full max-w-2xl max-h-[calc(100vh-4rem)] overflow-y-auto">
-<h2 class="text-xl font-bold mb-4" id="modal-title">Add Task</h2>
-<form id="task-form" class="space-y-4">
+<div id="task-modal" class="hidden fixed inset-0 z-[70]">
+<div class="absolute inset-0 bg-black" id="task-backdrop"></div>
+<div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+<div class="bg-surface border-2 border-charcoal w-full max-w-2xl max-h-[calc(100vh-4rem)] overflow-y-auto shadow-[6px_6px_0px_0px_#1F2937] pointer-events-auto">
+<div class="bg-primary border-b-2 border-charcoal p-4">
+<h2 class="text-xl font-bold text-white" id="modal-title">Add Task</h2>
+</div>
+<form id="task-form" class="p-6 space-y-4">
 <input type="hidden" id="task-id"/>
 <input type="hidden" id="task-status"/>
 <div class="grid grid-cols-2 gap-4">
@@ -105,9 +109,8 @@ tailwind.config = {
 </div>
 <div>
 <label for="task-assignee" class="block font-bold text-sm mb-1">Assignee</label>
-<select id="task-assignee" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary">
-<option value="">Select Assignee</option>
-</select>
+<input type="text" id="task-assignee" list="user-list" placeholder="Select or type assignee name" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary"/>
+<datalist id="user-list"></datalist>
 </div>
 </div>
 <div class="grid grid-cols-3 gap-4">
@@ -172,12 +175,17 @@ tailwind.config = {
 </div>
 </div>
 
-<div id="task-details-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-<div class="bg-white border-2 border-charcoal p-6 w-full max-w-2xl max-h-[calc(100vh-4rem)] overflow-y-auto">
-<h2 class="text-xl font-bold mb-4">Task Details</h2>
-<div id="task-details-content" class="space-y-3 text-sm"></div>
-<div class="flex justify-end gap-2 mt-4">
+<div id="task-details-modal" class="hidden fixed inset-0 z-[70]">
+<div class="absolute inset-0 bg-black" id="details-backdrop"></div>
+<div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+<div class="bg-surface border-2 border-charcoal w-full max-w-2xl max-h-[calc(100vh-4rem)] overflow-y-auto shadow-[6px_6px_0px_0px_#1F2937] pointer-events-auto">
+<div class="bg-primary border-b-2 border-charcoal p-4">
+<h2 class="text-xl font-bold text-white">Task Details</h2>
+</div>
+<div id="task-details-content" class="p-6 space-y-3 text-sm"></div>
+<div class="p-4 border-t-2 border-charcoal flex justify-end gap-2">
 <button type="button" id="close-details-btn" class="px-4 py-2 border-2 border-charcoal font-bold hover:bg-charcoal hover:text-white transition-colors">Close</button>
+</div>
 </div>
 </div>
 </div>
@@ -185,7 +193,6 @@ tailwind.config = {
 <script>
 const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user') || '{}');
-let allUsers = [];
 
 if (!token) {
     document.getElementById('auth-check').innerHTML = '<p>Please <a href="index.html" class="text-primary font-bold">login</a> to continue.</p>';
@@ -202,9 +209,9 @@ async function loadUsers() {
         const res = await fetch('/api/users', {
             headers: { 'Authorization': 'Bearer ' + token }
         });
-        allUsers = await res.json();
-        const select = document.getElementById('task-assignee');
-        select.innerHTML = '<option value="">Select Assignee</option>' + allUsers.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+        const users = await res.json();
+        const datalist = document.getElementById('user-list');
+        datalist.innerHTML = users.map(u => `<option value="${u.name}">`).join('');
     } catch (err) {}
 }
 
@@ -337,7 +344,7 @@ async function editTask(id) {
         document.getElementById('task-end').value = task.endDate ? task.endDate.split('T')[0] : '';
         document.getElementById('task-coordinator').value = task.coordinator || '';
         document.getElementById('task-recurring').value = task.recurring || 'none';
-        document.getElementById('task-assignee').value = task.assignee ? task.assignee._id || task.assignee : '';
+        document.getElementById('task-assignee').value = task.assignee ? task.assignee.name || task.assignee : '';
         
         renderSubtasks(task.subtasks || []);
         renderAttachments(task.attachments || []);
@@ -491,6 +498,8 @@ document.getElementById('logout-btn').addEventListener('click', () => {
 });
 
 document.getElementById('close-details-btn').addEventListener('click', closeDetailsModal);
+
+document.getElementById('details-backdrop').addEventListener('click', closeDetailsModal);
 
 document.getElementById('task-details-modal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('task-details-modal')) {

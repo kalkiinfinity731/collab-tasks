@@ -2,7 +2,7 @@ const Task = require('../models/Task');
 
 const populateUser = (task) => {
   if (task && task.assignee && typeof task.assignee === 'string') {
-    return { ...task, assignee: { name: 'User', email: 'user@example.com', _id: task.assignee } };
+    return { ...task, assignee: { name: task.assignee, email: '', _id: task.assignee } };
   }
   return task;
 };
