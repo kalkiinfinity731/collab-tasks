@@ -13,6 +13,13 @@ if (!process.env.SKIP_MONGODB) {
     startDate: { type: Date },
     endDate: { type: Date },
     coordinator: { type: String },
+    recurring: { type: String, enum: ['none', 'daily', 'weekly', 'monthly', 'yearly'], default: 'none' },
+    reminder: { type: Date },
+    subtasks: [{ title: String, completed: { type: Boolean, default: false } }],
+    attachments: [{ name: String, url: String }],
+    comments: [{ author: String, text: String, createdAt: { type: Date, default: Date.now } }],
+    timeEntries: [{ startTime: Date, endTime: Date, duration: Number }],
+    totalTimeSpent: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
   });
@@ -24,7 +31,7 @@ if (!process.env.SKIP_MONGODB) {
   Task = {
     find: (query = {}) => Promise.resolve(tasks.filter(t => !query.user || t.user == query.user).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))),
     findById: (id) => Promise.resolve(tasks.find(t => t._id == id) || null),
-    create: (data) => { const task = { _id: String(nextId++), ...data, createdAt: new Date(), updatedAt: new Date() }; tasks.push(task); return Promise.resolve(task); },
+    create: (data) => { const task = { _id: String(nextId++), ...data, subtasks: data.subtasks || [], attachments: data.attachments || [], comments: data.comments || [], timeEntries: data.timeEntries || [], totalTimeSpent: data.totalTimeSpent || 0, recurring: data.recurring || 'none', reminder: data.reminder || null, createdAt: new Date(), updatedAt: new Date() }; tasks.push(task); return Promise.resolve(task); },
     findByIdAndUpdate: (id, data) => { const idx = tasks.findIndex(t => t._id == id); if (idx === -1) return Promise.resolve(null); tasks[idx] = { ...tasks[idx], ...data, updatedAt: new Date() }; return Promise.resolve(tasks[idx]); },
     findByIdAndDelete: (id) => { const idx = tasks.findIndex(t => t._id == id); if (idx === -1) return Promise.resolve(null); return Promise.resolve(tasks.splice(idx, 1)[0]); }
   };

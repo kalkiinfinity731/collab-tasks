@@ -176,7 +176,7 @@ tailwind.config = {
 </div>
 <div>
 <p class="text-[10px] font-label-bold text-outline uppercase tracking-wider">Total Hours</p>
-<h3 class="font-headline-lg text-headline-lg text-charcoal">0h</h3>
+<h3 class="font-headline-lg text-headline-lg text-charcoal" id="total-hours">0h</h3>
 </div>
 </div>
 <div class="bento-card bg-white border-2 border-charcoal p-6 flex flex-col justify-between h-40">
@@ -187,6 +187,16 @@ tailwind.config = {
 <div>
 <p class="text-[10px] font-label-bold text-outline uppercase tracking-wider">Workspaces</p>
 <h3 class="font-headline-lg text-headline-lg text-charcoal" id="workspace-count">0</h3>
+</div>
+</div>
+<div class="bento-card bg-white border-2 border-charcoal p-6 flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-error bg-error-container p-2 border border-charcoal">notifications</span>
+<span id="reminder-count" class="text-[12px] font-label-bold text-error flex items-center gap-1">0</span>
+</div>
+<div>
+<p class="text-[10px] font-label-bold text-outline uppercase tracking-wider">Reminders</p>
+<h3 class="font-headline-lg text-headline-lg text-charcoal">Due Soon</h3>
 </div>
 </div>
 </div>
@@ -219,6 +229,17 @@ if (!token) {
         headers: { 'Authorization': 'Bearer ' + token }
     }).then(r => r.json()).then(data => {
         document.getElementById('task-count').textContent = data.length || 0;
+        
+        const totalHours = data.reduce((sum, t) => sum + (t.totalTimeSpent || 0), 0);
+        document.getElementById('total-hours').textContent = Math.round(totalHours / 60) + 'h';
+        
+        const now = new Date();
+        const reminderCount = data.filter(t => {
+            if (!t.dueDate || t.status === 'completed') return false;
+            const diff = (new Date(t.dueDate) - now) / (1000 * 60 * 60 * 24);
+            return diff <= 2 && diff >= 0;
+        }).length;
+        document.getElementById('reminder-count').textContent = reminderCount;
     }).catch(() => {});
     
     fetch('/api/workspaces', {

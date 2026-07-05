@@ -69,14 +69,25 @@ tailwind.config = {
 </div>
 
 <div id="task-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-<div class="bg-white border-2 border-charcoal p-6 w-full max-w-lg">
+<div class="bg-white border-2 border-charcoal p-6 w-full max-w-2xl">
 <h2 class="text-xl font-bold mb-4" id="modal-title">Add Task</h2>
 <form id="task-form" class="space-y-4">
 <input type="hidden" id="task-id"/>
 <input type="hidden" id="task-status"/>
+<div class="grid grid-cols-2 gap-4">
 <div>
 <label for="task-title" class="block font-bold text-sm mb-1">Title</label>
 <input type="text" id="task-title" title="Task title" placeholder="Task title" required class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary"/>
+</div>
+<div>
+<label for="task-priority" class="block font-bold text-sm mb-1">Priority</label>
+<select id="task-priority" title="Task priority" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary">
+<option value="low">Low</option>
+<option value="medium" selected>Medium</option>
+<option value="high">High</option>
+<option value="urgent">Urgent</option>
+</select>
+</div>
 </div>
 <div>
 <label for="task-desc" class="block font-bold text-sm mb-1">Description</label>
@@ -84,21 +95,18 @@ tailwind.config = {
 </div>
 <div class="grid grid-cols-2 gap-4">
 <div>
-<label for="task-priority" class="block font-bold text-sm mb-1">Priority</label>
-<select id="task-priority" title="Task priority" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary">
-<option value="low">Low</option>
-<option value="medium">Medium</option>
-<option value="high">High</option>
-<option value="urgent">Urgent</option>
-</select>
-</div>
-<div>
 <label for="task-status-select" class="block font-bold text-sm mb-1">Status</label>
 <select id="task-status-select" title="Task status" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary">
 <option value="todo">To Do</option>
 <option value="in_progress">In Progress</option>
 <option value="under_review">Review</option>
 <option value="completed">Done</option>
+</select>
+</div>
+<div>
+<label for="task-assignee" class="block font-bold text-sm mb-1">Assignee</label>
+<select id="task-assignee" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary">
+<option value="">Select Assignee</option>
 </select>
 </div>
 </div>
@@ -116,9 +124,45 @@ tailwind.config = {
 <input type="date" id="task-due" title="Deadline" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary"/>
 </div>
 </div>
+<div class="grid grid-cols-2 gap-4">
 <div>
 <label for="task-coordinator" class="block font-bold text-sm mb-1">Coordinator</label>
 <input type="text" id="task-coordinator" title="Coordinator name" placeholder="Coordinator name" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary"/>
+</div>
+<div>
+<label for="task-recurring" class="block font-bold text-sm mb-1">Recurring</label>
+<select id="task-recurring" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary">
+<option value="none">None</option>
+<option value="daily">Daily</option>
+<option value="weekly">Weekly</option>
+<option value="monthly">Monthly</option>
+<option value="yearly">Yearly</option>
+</select>
+</div>
+</div>
+<div id="subtasks-section" class="border-2 border-charcoal p-3">
+<div class="flex justify-between items-center mb-2">
+<label class="block font-bold text-sm">Subtasks</label>
+<button type="button" id="add-subtask-btn" class="text-xs bg-primary-container px-2 py-1 border border-charcoal font-bold">+ Add</button>
+</div>
+<div id="subtasks-list" class="space-y-2"></div>
+</div>
+<div id="attachments-section" class="border-2 border-charcoal p-3">
+<div class="flex justify-between items-center mb-2">
+<label class="block font-bold text-sm">Attachments</label>
+<button type="button" id="add-attachment-btn" class="text-xs bg-primary-container px-2 py-1 border border-charcoal font-bold">+ Add</button>
+</div>
+<div id="attachments-list" class="space-y-2"></div>
+</div>
+<div id="comments-section" class="border-2 border-charcoal p-3">
+<div class="flex justify-between items-center mb-2">
+<label class="block font-bold text-sm">Comments</label>
+</div>
+<div id="comments-list" class="space-y-2 mb-2 max-h-32 overflow-y-auto"></div>
+<div class="flex gap-2">
+<input type="text" id="comment-input" placeholder="Add a comment" class="flex-1 border-2 border-charcoal px-3 py-1 text-sm focus:border-primary"/>
+<button type="button" id="add-comment-btn" class="border-2 border-charcoal px-3 py-1 text-sm font-bold hover:bg-charcoal hover:text-white transition-colors">Post</button>
+</div>
 </div>
 <div class="flex gap-2">
 <button type="submit" class="flex-1 bg-primary-container text-charcoal font-bold py-2 border-2 border-charcoal">Save</button>
@@ -131,6 +175,7 @@ tailwind.config = {
 <script>
 const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user') || '{}');
+let allUsers = [];
 
 if (!token) {
     document.getElementById('auth-check').innerHTML = '<p>Please <a href="index.html" class="text-primary font-bold">login</a> to continue.</p>';
@@ -138,7 +183,19 @@ if (!token) {
 } else {
     document.getElementById('app').classList.remove('hidden');
     document.getElementById('user-name').textContent = user.name || 'User';
+    loadUsers();
     loadTasks();
+}
+
+async function loadUsers() {
+    try {
+        const res = await fetch('/api/users', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        allUsers = await res.json();
+        const select = document.getElementById('task-assignee');
+        select.innerHTML = '<option value="">Select Assignee</option>' + allUsers.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+    } catch (err) {}
 }
 
 async function loadTasks() {
@@ -162,6 +219,26 @@ async function loadTasks() {
     }
 }
 
+function getPriorityColor(priority) {
+    switch(priority) {
+        case 'urgent': return 'bg-red-100 text-red-800 border-red-300';
+        case 'high': return 'bg-orange-100 text-orange-800 border-orange-300';
+        case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        case 'low': return 'bg-green-100 text-green-800 border-green-300';
+        default: return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+}
+
+function getDueDateBadge(dueDate) {
+    if (!dueDate) return '';
+    const due = new Date(dueDate);
+    const now = new Date();
+    const diff = (due - now) / (1000 * 60 * 60 * 24);
+    if (diff < 0) return '<span class="text-xs px-2 py-0.5 bg-red-100 text-red-800 border border-red-300">Overdue</span>';
+    if (diff <= 2) return '<span class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-800 border border-yellow-300">Due Soon</span>';
+    return `<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 border border-blue-300">Due: ${due.toLocaleDateString()}</span>`;
+}
+
 function renderTasks(listId, tasks) {
     const el = document.getElementById(listId);
     el.innerHTML = tasks.map(task => `
@@ -169,13 +246,13 @@ function renderTasks(listId, tasks) {
             <h4 class="font-bold text-sm">${task.title}</h4>
             <p class="text-xs text-gray-600 mt-1">${task.description || ''}</p>
             <div class="text-xs mt-1 space-y-1">
-                ${task.startDate ? `<span>Start: ${new Date(task.startDate).toLocaleDateString()}</span>` : ''}
-                ${task.endDate ? `<span>End: ${new Date(task.endDate).toLocaleDateString()}</span>` : ''}
-                ${task.dueDate ? `<span>Deadline: ${new Date(task.dueDate).toLocaleDateString()}</span>` : ''}
-                ${task.coordinator ? `<span>Coordinator: ${task.coordinator}</span>` : ''}
+                ${getDueDateBadge(task.dueDate)}
+                ${task.assignee ? `<span>Assignee: ${task.assignee.name || 'User'}</span>` : ''}
+                ${task.recurring && task.recurring !== 'none' ? `<span>Recurring: ${task.recurring}</span>` : ''}
+                ${task.subtasks && task.subtasks.length > 0 ? `<span>Subtasks: ${task.subtasks.filter(s => s.completed).length}/${task.subtasks.length}</span>` : ''}
             </div>
             <div class="flex justify-between items-center mt-2">
-                <span class="text-xs px-2 py-0.5 bg-charcoal text-white">${task.priority}</span>
+                <span class="text-xs px-2 py-0.5 border ${getPriorityColor(task.priority)}">${task.priority}</span>
                 <button onclick="deleteTask('${task._id}', event)" class="text-red-600 text-xs">Delete</button>
             </div>
         </div>
@@ -188,6 +265,9 @@ function openTaskModal(status) {
     document.getElementById('task-status-select').value = status;
     document.getElementById('modal-title').textContent = 'Add Task';
     document.getElementById('task-form').reset();
+    document.getElementById('subtasks-list').innerHTML = '';
+    document.getElementById('attachments-list').innerHTML = '';
+    document.getElementById('comments-list').innerHTML = '';
 }
 
 function closeTaskModal() {
@@ -210,10 +290,114 @@ async function editTask(id) {
         document.getElementById('task-start').value = task.startDate ? task.startDate.split('T')[0] : '';
         document.getElementById('task-end').value = task.endDate ? task.endDate.split('T')[0] : '';
         document.getElementById('task-coordinator').value = task.coordinator || '';
+        document.getElementById('task-recurring').value = task.recurring || 'none';
+        document.getElementById('task-assignee').value = task.assignee ? task.assignee._id || task.assignee : '';
+        
+        renderSubtasks(task.subtasks || []);
+        renderAttachments(task.attachments || []);
+        renderComments(task.comments || []);
+        
         document.getElementById('task-modal').classList.remove('hidden');
         document.getElementById('modal-title').textContent = 'Edit Task';
     } catch (err) {}
 }
+
+function renderSubtasks(subtasks) {
+    const el = document.getElementById('subtasks-list');
+    el.innerHTML = subtasks.map((st, i) => `
+        <div class="flex items-center gap-2">
+            <input type="checkbox" ${st.completed ? 'checked' : ''} onchange="toggleSubtask(${i})" class="accent-charcoal"/>
+            <span class="flex-1 text-sm ${st.completed ? 'line-through text-gray-500' : ''}">${st.title}</span>
+            <button type="button" onclick="removeSubtask(${i})" class="text-red-600 text-xs">x</button>
+        </div>
+    `).join('');
+}
+
+function renderAttachments(attachments) {
+    const el = document.getElementById('attachments-list');
+    el.innerHTML = attachments.map((att, i) => `
+        <div class="flex items-center gap-2">
+            <span class="flex-1 text-sm truncate">${att.name}</span>
+            <a href="${att.url}" target="_blank" class="text-xs text-primary">View</a>
+            <button type="button" onclick="removeAttachment(${i})" class="text-red-600 text-xs">x</button>
+        </div>
+    `).join('');
+}
+
+function renderComments(comments) {
+    const el = document.getElementById('comments-list');
+    el.innerHTML = comments.map(c => `
+        <div class="text-xs border-b border-gray-200 pb-1">
+            <span class="font-bold">${c.author}:</span> ${c.text}
+            <span class="text-gray-400 ml-1">${new Date(c.createdAt).toLocaleString()}</span>
+        </div>
+    `).join('');
+}
+
+document.getElementById('add-subtask-btn').addEventListener('click', () => {
+    const title = prompt('Subtask title:');
+    if (!title) return;
+    const id = document.getElementById('task-id').value;
+    if (!id) { alert('Save task first'); return; }
+    fetch('/api/tasks/' + id + '/subtasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ title })
+    }).then(r => r.json()).then(task => renderSubtasks(task.subtasks || []));
+});
+
+window.removeSubtask = (index) => {
+    const id = document.getElementById('task-id').value;
+    fetch('/api/tasks/' + id + '/subtasks/' + index, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
+    }).then(r => r.json()).then(task => renderSubtasks(task.subtasks || []));
+};
+
+window.toggleSubtask = (index) => {
+    const id = document.getElementById('task-id').value;
+    fetch('/api/tasks/' + id + '/subtasks/' + index, {
+        method: 'PATCH',
+        headers: { 'Authorization': 'Bearer ' + token }
+    }).then(r => r.json()).then(task => renderSubtasks(task.subtasks || []));
+};
+
+document.getElementById('add-attachment-btn').addEventListener('click', () => {
+    const name = prompt('Attachment name:');
+    if (!name) return;
+    const url = prompt('Attachment URL:');
+    if (!url) return;
+    const id = document.getElementById('task-id').value;
+    if (!id) { alert('Save task first'); return; }
+    fetch('/api/tasks/' + id + '/attachments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ name, url })
+    }).then(r => r.json()).then(task => renderAttachments(task.attachments || []));
+});
+
+window.removeAttachment = (index) => {
+    const id = document.getElementById('task-id').value;
+    fetch('/api/tasks/' + id + '/attachments/' + index, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
+    }).then(r => r.json()).then(task => renderAttachments(task.attachments || []));
+};
+
+document.getElementById('add-comment-btn').addEventListener('click', () => {
+    const text = document.getElementById('comment-input').value.trim();
+    if (!text) return;
+    const id = document.getElementById('task-id').value;
+    if (!id) { alert('Save task first'); return; }
+    fetch('/api/tasks/' + id + '/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ text })
+    }).then(r => r.json()).then(task => {
+        document.getElementById('comment-input').value = '';
+        renderComments(task.comments || []);
+    });
+});
 
 async function deleteTask(id, e) {
     e.stopPropagation();
@@ -237,7 +421,9 @@ document.getElementById('task-form').addEventListener('submit', async (e) => {
         dueDate: document.getElementById('task-due').value || null,
         startDate: document.getElementById('task-start').value || null,
         endDate: document.getElementById('task-end').value || null,
-        coordinator: document.getElementById('task-coordinator').value || ''
+        coordinator: document.getElementById('task-coordinator').value || '',
+        recurring: document.getElementById('task-recurring').value,
+        assignee: document.getElementById('task-assignee').value || null
     };
     
     const method = id ? 'PUT' : 'POST';

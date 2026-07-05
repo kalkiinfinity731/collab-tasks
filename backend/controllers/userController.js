@@ -101,6 +101,15 @@ const getProfile = async (req, res) => {
   }
 };
 
+const getUsers = async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.json(users.map(u => ({ id: u._id, name: u.name, email: u.email })));
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 const updateProfile = async (req, res) => {
   try {
     const updates = {};
