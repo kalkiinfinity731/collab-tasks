@@ -37,18 +37,67 @@ tailwind.config = {
 </div>
 <div>
 <label class="block font-bold text-sm mb-2">Designation</label>
-<select id="designation" required class="w-full border-2 border-charcoal px-4 py-2 focus:border-primary">
-<option value="">Select Designation</option>
-<option value="developer">Developer</option>
-<option value="tester">Tester</option>
-<option value="team_lead">Team Lead</option>
-<option value="manager">Manager</option>
-<option value="team_member">Team Member</option>
-<option value="designer">Designer</option>
-<option value="product_owner">Product Owner</option>
-<option value="scrum_master">Scrum Master</option>
-</select>
+<button type="button" id="designation-btn" class="w-full border-2 border-charcoal px-4 py-2 text-left focus:border-primary flex items-center justify-between">
+<span id="designation-text">Select Designation</span>
+<span class="material-symbols-outlined">arrow_drop_down</span>
+</button>
 </div>
+
+<div id="designation-modal" class="hidden fixed right-4 top-1/2 -translate-y-1/2 w-80 bg-white border-2 border-charcoal shadow-[6px_6px_0px_0px_#1F2937] z-50">
+<div class="p-4 border-b-2 border-charcoal">
+<h3 class="font-bold text-lg text-charcoal">Select Designation</h3>
+</div>
+<div class="p-2 space-y-1 max-h-96 overflow-y-auto">
+<label class="flex items-center gap-3 p-3 hover:bg-surface cursor-pointer border-2 border-transparent hover:border-charcoal transition-all">
+<input type="radio" name="designation" value="developer" class="accent-charcoal"/>
+<span class="font-body-md">Developer</span>
+</label>
+<label class="flex items-center gap-3 p-3 hover:bg-surface cursor-pointer border-2 border-transparent hover:border-charcoal transition-all">
+<input type="radio" name="designation" value="tester" class="accent-charcoal"/>
+<span class="font-body-md">Tester</span>
+</label>
+<label class="flex items-center gap-3 p-3 hover:bg-surface cursor-pointer border-2 border-transparent hover:border-charcoal transition-all">
+<input type="radio" name="designation" value="team_lead" class="accent-charcoal"/>
+<span class="font-body-md">Team Lead</span>
+</label>
+<label class="flex items-center gap-3 p-3 hover:bg-surface cursor-pointer border-2 border-transparent hover:border-charcoal transition-all">
+<input type="radio" name="designation" value="manager" class="accent-charcoal"/>
+<span class="font-body-md">Manager</span>
+</label>
+<label class="flex items-center gap-3 p-3 hover:bg-surface cursor-pointer border-2 border-transparent hover:border-charcoal transition-all">
+<input type="radio" name="designation" value="team_member" class="accent-charcoal"/>
+<span class="font-body-md">Team Member</span>
+</label>
+<label class="flex items-center gap-3 p-3 hover:bg-surface cursor-pointer border-2 border-transparent hover:border-charcoal transition-all">
+<input type="radio" name="designation" value="designer" class="accent-charcoal"/>
+<span class="font-body-md">Designer</span>
+</label>
+<label class="flex items-center gap-3 p-3 hover:bg-surface cursor-pointer border-2 border-transparent hover:border-charcoal transition-all">
+<input type="radio" name="designation" value="product_owner" class="accent-charcoal"/>
+<span class="font-body-md">Product Owner</span>
+</label>
+<label class="flex items-center gap-3 p-3 hover:bg-surface cursor-pointer border-2 border-transparent hover:border-charcoal transition-all">
+<input type="radio" name="designation" value="scrum_master" class="accent-charcoal"/>
+<span class="font-body-md">Scrum Master</span>
+</label>
+<label class="flex items-center gap-3 p-3 hover:bg-surface cursor-pointer border-2 border-transparent hover:border-charcoal transition-all">
+<input type="radio" name="designation" value="others" class="accent-charcoal" id="others-radio"/>
+<span class="font-body-md">Others</span>
+</label>
+<div id="custom-designation-container" class="hidden p-3 border-t-2 border-charcoal">
+<label class="block font-bold text-sm mb-2">Enter Designation</label>
+<input type="text" id="custom-designation" placeholder="Type your designation" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary"/>
+</div>
+</div>
+<div class="p-3 border-t-2 border-charcoal flex justify-end gap-2">
+<button type="button" id="cancel-designation" class="px-4 py-2 border-2 border-charcoal font-bold hover:bg-charcoal hover:text-white transition-colors">Cancel</button>
+<button type="button" id="save-designation" class="px-4 py-2 bg-primary-container text-charcoal border-2 border-charcoal font-bold hover:bg-primary transition-colors">Save</button>
+</div>
+</div>
+
+<div id="modal-overlay" class="hidden fixed inset-0 bg-black/30 z-40"></div>
+
+<input type="hidden" id="designation" value=""/>
 <div id="errorMsg" class="text-error text-sm hidden"></div>
 <button type="submit" class="w-full bg-primary-container text-charcoal font-bold py-3 px-4 border-2 border-charcoal">
 Save Profile
@@ -68,6 +117,55 @@ const user = JSON.parse(localStorage.getItem('user') || '{}');
 document.getElementById('name').value = user.name || '';
 document.getElementById('email').value = user.email || '';
 document.getElementById('designation').value = user.designation || user.role || '';
+
+document.getElementById('designation-btn').addEventListener('click', () => {
+    document.getElementById('designation-modal').classList.remove('hidden');
+    document.getElementById('modal-overlay').classList.remove('hidden');
+});
+
+document.getElementById('cancel-designation').addEventListener('click', () => {
+    document.getElementById('designation-modal').classList.add('hidden');
+    document.getElementById('modal-overlay').classList.add('hidden');
+});
+
+document.getElementById('modal-overlay').addEventListener('click', () => {
+    document.getElementById('designation-modal').classList.add('hidden');
+    document.getElementById('modal-overlay').classList.add('hidden');
+});
+
+document.getElementById('others-radio').addEventListener('change', () => {
+    if (document.getElementById('others-radio').checked) {
+        document.getElementById('custom-designation-container').classList.remove('hidden');
+        document.getElementById('custom-designation').focus();
+    }
+});
+
+document.querySelectorAll('input[name="designation"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+        if (radio.value !== 'others') {
+            document.getElementById('custom-designation-container').classList.add('hidden');
+        }
+    });
+});
+
+document.getElementById('save-designation').addEventListener('click', () => {
+    const selected = document.querySelector('input[name="designation"]:checked');
+    if (selected) {
+        let designationValue = selected.value;
+        if (designationValue === 'others') {
+            const customValue = document.getElementById('custom-designation').value.trim();
+            if (!customValue) {
+                alert('Please enter your designation');
+                return;
+            }
+            designationValue = customValue;
+        }
+        document.getElementById('designation').value = designationValue;
+        document.getElementById('designation-text').textContent = designationValue.charAt(0).toUpperCase() + designationValue.slice(1).replace(/_/g, ' ');
+        document.getElementById('designation-modal').classList.add('hidden');
+        document.getElementById('modal-overlay').classList.add('hidden');
+    }
+});
 
 document.getElementById('logout-btn').addEventListener('click', (e) => {
     e.preventDefault();
