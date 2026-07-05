@@ -134,5 +134,6 @@ module.exports = {
   register,
   login,
   getProfile,
-  updateProfile
+  updateProfile,
+  getUsers
 };
