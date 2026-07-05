@@ -1,4 +1,4 @@
-# Collab - Full Stack Web Development Task Collaboration Tool
+# Collab - Task Collaboration Tool
 
 A full stack web development project featuring Kanban-style task collaboration for teams. Create, track, and organize tasks with start/end dates, deadlines, and coordinators.
 
