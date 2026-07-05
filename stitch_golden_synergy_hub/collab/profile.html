@@ -58,10 +58,11 @@ Save Profile
 <p class="text-center text-sm mt-6">
 <a href="kanban.html" class="text-primary font-bold">Back to Board</a>
 </p>
+<button type="button" id="logout-btn" class="w-full border-2 border-charcoal px-3 py-2 text-sm font-bold hover:bg-charcoal hover:text-white transition-colors mt-4">Logout</button>
 </div>
 
 <div id="auth-check" class="min-h-screen flex items-center justify-center">
-<p>Redirecting to <a href="index.html" class="text-primary font-bold">login</a>...</p>
+<p>Redirecting to <a href="index.html" class="text-primary font-bold">logout</a>...</p>
 </div>
 
 <script>
@@ -69,13 +70,20 @@ const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 
 if (!token) {
-    document.getElementById('auth-check').innerHTML = '<p>Redirecting to <a href="index.html" class="text-primary font-bold">login</a>...</p>';
+    document.getElementById('auth-check').innerHTML = '<p>Redirecting to <a href="index.html" class="text-primary font-bold">logout</a>...</p>';
     setTimeout(() => window.location.href = 'index.html', 1000);
 } else {
     document.getElementById('app').classList.remove('hidden');
     document.getElementById('name').value = user.name || '';
     document.getElementById('email').value = user.email || '';
     document.getElementById('designation').value = user.designation || user.role || '';
+    
+    document.getElementById('logout-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'index.html';
+    });
 }
 
 document.getElementById('profile-form').addEventListener('submit', async (e) => {
