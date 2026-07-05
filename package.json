@@ -1,0 +1,9 @@
+{
+  "name": "collab",
+  "version": "1.0.0",
+  "description": "Root package for Collab fullstack app",
+  "scripts": {
+    "start": "npm start --prefix backend",
+    "dev": "npm run dev --prefix backend"
+  }
+}

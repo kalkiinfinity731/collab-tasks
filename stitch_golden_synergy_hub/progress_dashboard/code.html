@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VelocityTask | Progress Dashboard</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@700;800;900&amp;family=JetBrains+Mono:wght@500;700&amp;family=Work+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "tertiary-container": "#ffbb65",
+                  "on-surface": "#191c1e",
+                  "surface": "#f8f9fb",
+                  "surface-dim": "#d9dadc",
+                  "inverse-on-surface": "#f0f1f3",
+                  "surface-container-lowest": "#ffffff",
+                  "outline-variant": "#d3c5ac",
+                  "on-tertiary": "#ffffff",
+                  "secondary-fixed-dim": "#bdc7d9",
+                  "on-secondary-fixed": "#121c2a",
+                  "on-tertiary-fixed": "#2a1700",
+                  "surface-variant": "#e1e2e4",
+                  "on-background": "#191c1e",
+                  "on-primary-container": "#6c4f00",
+                  "tertiary-fixed-dim": "#ffb95f",
+                  "primary-fixed": "#ffdf9f",
+                  "on-error-container": "#93000a",
+                  "on-primary": "#ffffff",
+                  "on-primary-fixed-variant": "#5c4300",
+                  "primary": "#795900",
+                  "secondary-container": "#d6e0f3",
+                  "on-secondary-container": "#596373",
+                  "primary-fixed-dim": "#f9bd22",
+                  "secondary": "#555f6f",
+                  "on-surface-variant": "#4f4633",
+                  "tertiary-fixed": "#ffddb8",
+                  "on-secondary": "#ffffff",
+                  "inverse-surface": "#2e3132",
+                  "surface-container-low": "#f3f4f6",
+                  "surface-bright": "#f8f9fb",
+                  "surface-container-highest": "#e1e2e4",
+                  "inverse-primary": "#f9bd22",
+                  "on-secondary-fixed-variant": "#3d4756",
+                  "secondary-fixed": "#d9e3f6",
+                  "primary-container": "#fbbf24",
+                  "on-primary-fixed": "#261a00",
+                  "background": "#f8f9fb",
+                  "surface-container": "#edeef0",
+                  "error-container": "#ffdad6",
+                  "on-tertiary-container": "#764a00",
+                  "surface-container-high": "#e7e8ea",
+                  "surface-tint": "#795900",
+                  "outline": "#817661",
+                  "on-error": "#ffffff",
+                  "on-tertiary-fixed-variant": "#653e00",
+                  "error": "#ba1a1a",
+                  "tertiary": "#855300",
+                  "charcoal": "#1F2937"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.125rem",
+                  "lg": "0.25rem",
+                  "xl": "0.5rem",
+                  "full": "0.75rem"
+          },
+          "spacing": {
+                  "gutter": "24px",
+                  "base": "8px",
+                  "margin-mobile": "16px",
+                  "margin-desktop": "40px",
+                  "container-max": "1280px"
+          },
+          "fontFamily": {
+                  "headline-lg": ["Hanken Grotesk"],
+                  "headline-xl": ["Hanken Grotesk"],
+                  "headline-md": ["Hanken Grotesk"],
+                  "body-sm": ["Work Sans"],
+                  "label-sm": ["JetBrains Mono"],
+                  "body-lg": ["Work Sans"],
+                  "label-bold": ["JetBrains Mono"],
+                  "body-md": ["Work Sans"]
+          },
+          "fontSize": {
+                  "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                  "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                  "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                  "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                  "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+                  "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                  "label-bold": ["12px", {"lineHeight": "16px", "fontWeight": "700"}],
+                  "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .bento-card {
+        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .bento-card:hover {
+        transform: translate(-4px, -4px);
+        box-shadow: 4px 4px 0px 0px #1F2937;
+    }
+    .chart-bar-grow {
+        animation: growVertical 1.5s ease-out forwards;
+        transform-origin: bottom;
+    }
+    @keyframes growVertical {
+        from { transform: scaleY(0); }
+        to { transform: scaleY(1); }
+    }
+    .progress-pattern {
+        background-image: repeating-linear-gradient(45deg, rgba(31, 41, 55, 0.1), rgba(31, 41, 55, 0.1) 10px, transparent 10px, transparent 20px);
+    }
+    .truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+</style>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<div class="flex min-h-screen overflow-hidden">
+<aside class="hidden md:flex flex-col h-screen w-64 bg-surface-container-low border-r-2 border-outline z-30">
+<div class="p-margin-desktop flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container flex items-center justify-center border-2 border-charcoal">
+<span class="material-symbols-outlined font-bold text-charcoal">bolt</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-black text-on-surface leading-none">VelocityTask</h1>
+<p class="text-[10px] font-label-bold text-outline uppercase tracking-widest mt-1">High-Energy Mode</p>
+</div>
+</div>
+<nav class="flex-1 mt-6 px-4 space-y-2">
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant transition-all active:translate-x-1 duration-150 group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">workspaces</span>
+<span class="font-body-md font-medium">Workspaces</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant transition-all active:translate-x-1 duration-150 group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">chat</span>
+<span class="font-body-md font-medium">Active Chat</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant transition-all active:translate-x-1 duration-150 group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">view_kanban</span>
+<span class="font-body-md font-medium">Kanban Boards</span>
+</a>
+<a class="flex items-center gap-3 bg-primary-container text-on-primary-container border-r-3 border-primary font-bold px-4 py-3 transition-all active:translate-x-1 duration-150 group" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">speed</span>
+<span class="font-body-md">Dashboards</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant transition-all active:translate-x-1 duration-150 group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">admin_panel_settings</span>
+<span class="font-body-md font-medium">Admin</span>
+</a>
+</nav>
+<div class="p-4 mt-auto space-y-2 border-t border-outline-variant">
+<button class="w-full bg-primary-container hover:bg-primary border-2 border-charcoal py-3 px-4 flex items-center justify-center gap-2 font-bold shadow-[4px_4px_0px_0px_#1F2937] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all">
+<span class="material-symbols-outlined">add</span>
+New Task
+</button>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md">Settings</span>
+</a>
+<a class="flex items-center gap-3 text-error px-4 py-3 hover:bg-error-container transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-body-md font-bold">Logout</span>
+</a>
+</div>
+</aside>
+<main class="flex-1 flex flex-col h-screen overflow-hidden bg-white">
+<header class="w-full h-16 bg-surface-container-lowest border-b-2 border-outline flex justify-between items-center px-margin-desktop z-20">
+<div class="flex items-center gap-6">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-outline">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-2 border-charcoal focus:border-primary focus:ring-0 w-64 transition-all" placeholder="Quick search..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center text-secondary hover:bg-surface-container transition-colors active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-secondary hover:bg-surface-container transition-colors active:scale-95">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<p class="font-label-bold text-charcoal">Fresh User</p>
+<p class="text-[10px] text-outline uppercase font-bold">New Member</p>
+</div>
+<div class="w-10 h-10 border-2 border-charcoal bg-surface-container-high flex items-center justify-center font-label-bold">
+<span class="material-symbols-outlined">person</span>
+</div>
+</div>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-margin-desktop custom-scrollbar">
+<section class="mb-12">
+<h2 class="font-headline-xl text-headline-xl text-charcoal tracking-tight mb-2">Progress Dashboard</h2>
+<p class="font-body-lg text-secondary max-w-2xl">Visualizing momentum across your workspaces. You're at <span class="font-bold text-primary">0%</span> of your weekly velocity goal. Ready to start!</p>
+</section>
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-gutter mb-12">
+<div class="bento-card bg-white border-2 border-charcoal p-6 flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary bg-primary-container p-2 border border-charcoal">check_circle</span>
+<span class="text-[12px] font-label-bold text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +0%
+</span>
+</div>
+<div>
+<p class="text-[10px] font-label-bold text-outline uppercase tracking-wider">Tasks Completed</p>
+<h3 class="font-headline-lg text-headline-lg text-charcoal">0</h3>
+</div>
+</div>
+<div class="bento-card bg-white border-2 border-charcoal p-6 flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-charcoal bg-surface-container-high p-2 border border-charcoal">schedule</span>
+<span class="text-[12px] font-label-bold text-outline flex items-center gap-1">Ready</span>
+</div>
+<div>
+<p class="text-[10px] font-label-bold text-outline uppercase tracking-wider">Total Hours Tracked</p>
+<h3 class="font-headline-lg text-headline-lg text-charcoal">0.0h</h3>
+</div>
+</div>
+<div class="bento-card bg-charcoal border-2 border-charcoal p-6 flex flex-col justify-between h-40">
+<div class="flex justify-between items-start text-white">
+<span class="material-symbols-outlined text-primary-container">event_upcoming</span>
+<span class="text-[10px] bg-primary-container px-2 py-1 font-label-bold uppercase">New</span>
+</div>
+<div>
+<p class="text-[10px] font-label-bold text-outline-variant uppercase tracking-wider">Upcoming Deadlines</p>
+<h3 class="font-headline-lg text-headline-lg text-white">0</h3>
+</div>
+</div>
+<div class="bento-card bg-primary-container border-2 border-charcoal p-6 flex flex-col justify-between h-40 overflow-hidden relative group">
+<div class="absolute right-0 top-0 w-24 h-full bg-white/10 skew-x-12 translate-x-12 group-hover:translate-x-0 transition-transform duration-500"></div>
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-charcoal">rocket_launch</span>
+</div>
+<div>
+<p class="text-[10px] font-label-bold text-charcoal/60 uppercase tracking-wider">Sprint Velocity</p>
+<h3 class="font-headline-lg text-headline-lg text-charcoal">Ready</h3>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<div class="lg:col-span-8 bento-card bg-white border-2 border-charcoal p-8">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h4 class="font-headline-md text-headline-md text-charcoal">Productivity Trends</h4>
+<p class="font-body-sm text-secondary">Start tracking your output</p>
+</div>
+<div class="flex gap-2">
+<button class="px-3 py-1 text-[11px] font-label-bold bg-charcoal text-white uppercase">Weekly</button>
+<button class="px-3 py-1 text-[11px] font-label-bold border-2 border-charcoal text-charcoal uppercase hover:bg-surface-variant transition-colors">Monthly</button>
+</div>
+</div>
+<div class="relative h-64 w-full border-l-2 border-b-2 border-outline-variant">
+<div class="absolute inset-0 grid grid-rows-4">
+<div class="border-t border-dashed border-outline-variant/30"></div>
+<div class="border-t border-dashed border-outline-variant/30"></div>
+<div class="border-t border-dashed border-outline-variant/30"></div>
+<div class="border-t border-dashed border-outline-variant/30"></div>
+</div>
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M 0 100 L 20 100 L 40 100 L 60 100 L 80 100 L 100 100" fill="none" stroke="#FBBF24" stroke-linecap="round" stroke-width="4"></path>
+</svg>
+<div class="absolute -bottom-8 w-full flex justify-between px-2 text-[10px] font-label-bold text-outline uppercase">
+<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-4 bento-card bg-white border-2 border-charcoal p-8">
+<h4 class="font-headline-md text-headline-md text-charcoal mb-6">Project Status</h4>
+<div class="flex flex-col items-center">
+<div class="relative w-48 h-48 mb-8">
+<svg class="w-full h-full rotate-[-90deg]" viewbox="0 0 36 36">
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#E5E7EB" stroke-width="4"></circle>
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#FBBF24" stroke-dasharray="0 100" stroke-dashoffset="0" stroke-width="4"></circle>
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#1F2937" stroke-dasharray="0 100" stroke-dashoffset="0" stroke-width="4"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-headline-lg text-headline-lg text-charcoal">0</span>
+<span class="text-[10px] font-label-bold text-outline uppercase">Projects</span>
+</div>
+</div>
+<ul class="w-full space-y-3">
+<li class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-primary-container border border-charcoal"></div>
+<span class="font-body-sm text-on-surface">Active Development</span>
+</div>
+<span class="font-label-bold">0%</span>
+</li>
+<li class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-charcoal"></div>
+<span class="font-body-sm text-on-surface">In Review</span>
+</div>
+<span class="font-label-bold">0%</span>
+</li>
+<li class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-surface-variant border border-charcoal"></div>
+<span class="font-body-sm text-on-surface">Backlog</span>
+</div>
+<span class="font-label-bold">0%</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="lg:col-span-12 bento-card bg-white border-2 border-charcoal p-8">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+<div>
+<h4 class="font-headline-md text-headline-md text-charcoal">Workload Distribution</h4>
+<p class="font-body-sm text-secondary">No team members yet</p>
+</div>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-gutter items-end h-64 border-b-2 border-charcoal px-4">
+<div class="text-[10px] font-label-bold text-center uppercase text-outline col-span-full">No data to display</div>
+</div>
+</div>
+</div>
+<div class="h-24"></div>
+</div>
+<button class="fixed bottom-10 right-10 w-16 h-16 bg-primary-container hover:bg-primary border-2 border-charcoal flex items-center justify-center text-charcoal shadow-[6px_6px_0px_0px_#1F2937] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[8px_8px_0px_0px_#1F2937] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all z-50">
+<span class="material-symbols-outlined text-3xl font-black">add</span>
+</button>
+</main>
+</div>
+<div class="md:hidden fixed bottom-0 left-0 w-full h-16 bg-surface-container-lowest border-t-2 border-outline flex items-center justify-around z-50">
+<a class="flex flex-col items-center text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">speed</span>
+<span class="text-[9px] font-bold">Stats</span>
+</a>
+<a class="flex flex-col items-center text-secondary" href="#">
+<span class="material-symbols-outlined">view_kanban</span>
+<span class="text-[9px] font-bold">Board</span>
+</a>
+<div class="w-12 h-12 bg-charcoal rounded-full -mt-10 border-2 border-primary-container flex items-center justify-center text-white shadow-lg">
+<span class="material-symbols-outlined">add</span>
+</div>
+<a class="flex flex-col items-center text-secondary" href="#">
+<span class="material-symbols-outlined">chat</span>
+<span class="text-[9px] font-bold">Chat</span>
+</a>
+<a class="flex flex-col items-center text-secondary" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[9px] font-bold">Profile</span>
+</a>
+</div>
+<script>
+    document.querySelectorAll('.bento-card').forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            const icon = card.querySelector('.material-symbols-outlined');
+            if(icon) {
+                icon.style.transform = 'scale(1.1) rotate(5deg)';
+                icon.style.transition = 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            }
+        });
+        card.addEventListener('mouseleave', () => {
+            const icon = card.querySelector('.material-symbols-outlined');
+            if(icon) {
+                icon.style.transform = 'scale(1) rotate(0deg)';
+            }
+        });
+    });
+</script>
+</body></html>

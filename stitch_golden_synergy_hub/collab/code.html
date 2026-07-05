@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VelocityTask | Accelerate Your Workflow</title>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800;900&amp;family=Work+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#ffbb65",
+                    "on-surface": "#191c1e",
+                    "surface": "#f8f9fb",
+                    "surface-dim": "#d9dadc",
+                    "inverse-on-surface": "#f0f1f3",
+                    "surface-container-lowest": "#ffffff",
+                    "outline-variant": "#d3c5ac",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#bdc7d9",
+                    "on-secondary-fixed": "#121c2a",
+                    "on-tertiary-fixed": "#2a1700",
+                    "surface-variant": "#e1e2e4",
+                    "on-background": "#191c1e",
+                    "on-primary-container": "#6c4f00",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "primary-fixed": "#ffdf9f",
+                    "on-error-container": "#93000a",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed-variant": "#5c4300",
+                    "primary": "#795900",
+                    "secondary-container": "#d6e0f3",
+                    "on-secondary-container": "#596373",
+                    "primary-fixed-dim": "#f9bd22",
+                    "secondary": "#555f6f",
+                    "on-surface-variant": "#4f4633",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-secondary": "#ffffff",
+                    "inverse-surface": "#2e3132",
+                    "surface-container-low": "#f3f4f6",
+                    "surface-bright": "#f8f9fb",
+                    "surface-container-highest": "#e1e2e4",
+                    "inverse-primary": "#f9bd22",
+                    "on-secondary-fixed-variant": "#3d4756",
+                    "secondary-fixed": "#d9e3f6",
+                    "primary-container": "#fbbf24",
+                    "on-primary-fixed": "#261a00",
+                    "background": "#f8f9fb",
+                    "surface-container": "#edeef0",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-container": "#764a00",
+                    "surface-container-high": "#e7e8ea",
+                    "surface-tint": "#795900",
+                    "outline": "#817661",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "error": "#ba1a1a",
+                    "tertiary": "#855300",
+                    "charcoal": "#1F2937"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "base": "8px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "40px",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Hanken Grotesk"],
+                    "headline-xl": ["Hanken Grotesk"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "headline-xl-mobile": ["Hanken Grotesk"],
+                    "body-sm": ["Work Sans"],
+                    "label-sm": ["JetBrains Mono"],
+                    "body-lg": ["Work Sans"],
+                    "label-bold": ["JetBrains Mono"],
+                    "body-md": ["Work Sans"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "800"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-bold": ["12px", {"lineHeight": "16px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          }
+        }
+    }
+  </script>
+<style>
+    .velocity-card-shadow {
+        box-shadow: 4px 4px 0px 0px #1F2937;
+        transition: all 0.2s ease-in-out;
+    }
+    .velocity-card-shadow:hover {
+        transform: translate(-4px, -4px);
+        box-shadow: 8px 8px 0px 0px #fbbf24;
+    }
+    .btn-primary-shadow {
+        box-shadow: 4px 4px 0px 0px #1F2937;
+    }
+    .btn-primary-shadow:active {
+        transform: translate(2px, 2px);
+        box-shadow: 0px 0px 0px 0px #1F2937;
+    }
+    .progress-pattern {
+        background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0, rgba(255,255,255,0.1) 10px, transparent 10px, transparent 20px);
+    }
+</style>
+</head>
+<body class="bg-surface text-on-surface font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<nav class="bg-surface-container-lowest dark:bg-surface-container-lowest border-b-2 border-outline dark:border-outline-variant w-full h-16 flex justify-between items-center px-margin-desktop sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<span class="font-headline-md text-headline-md font-black text-on-surface dark:text-inverse-on-surface">VelocityTask</span>
+<div class="ml-gutter hidden md:flex items-center gap-gutter">
+<nav class="flex gap-gutter">
+<a class="font-headline-md text-headline-md font-bold text-primary border-b-3 border-primary h-16 flex items-center" href="#">Home</a>
+<a class="font-headline-md text-headline-md font-bold text-secondary hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors h-16 flex items-center px-2" href="#">Features</a>
+<a class="font-headline-md text-headline-md font-bold text-secondary hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors h-16 flex items-center px-2" href="#">Solutions</a>
+</nav>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-secondary dark:text-secondary-fixed p-2 hover:bg-surface-container transition-colors rounded-full" data-icon="search">search</button>
+<button class="material-symbols-outlined text-secondary dark:text-secondary-fixed p-2 hover:bg-surface-container transition-colors rounded-full" data-icon="notifications">notifications</button>
+<button class="bg-primary-container text-on-primary-container font-label-bold text-label-bold px-4 py-2 border-2 border-charcoal btn-primary-shadow">GET STARTED</button>
+</div>
+</nav>
+<header class="relative overflow-hidden pt-16 pb-24 md:pt-32 md:pb-40 px-margin-mobile md:px-margin-desktop">
+<div class="relative z-10 max-w-container-max mx-auto grid md:grid-cols-2 gap-16 items-center">
+<div class="space-y-8">
+<div class="inline-block bg-charcoal text-surface-container-lowest px-4 py-1 font-label-bold text-label-bold skew-x-[-12deg]">
+<span class="inline-block skew-x-[12deg]">MOMENTUM MATTERS</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight leading-none">
+STOP PLANNING. <br/>
+<span class="text-primary-container bg-charcoal px-2">START FINISHING.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
+VelocityTask is the high-energy workspace built for teams who view deadlines as milestones, not stressors. Turn momentum into achievement today.
+</p>
+<div class="flex flex-wrap gap-4">
+<button class="bg-primary-container text-on-primary-container font-headline-md text-headline-md px-8 py-4 border-2 border-charcoal btn-primary-shadow flex items-center gap-2">
+Get Started for Free
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+</button>
+<button class="bg-transparent text-charcoal border-2 border-charcoal font-headline-md text-headline-md px-8 py-4 hover:bg-charcoal hover:text-white transition-all">
+Watch Demo
+</button>
+</div>
+</div>
+<div class="relative">
+<div class="bg-white border-2 border-charcoal velocity-card-shadow p-6 rotate-2">
+<div class="flex justify-between items-center mb-6">
+<div class="flex gap-2">
+<div class="w-3 h-3 rounded-full bg-error"></div>
+<div class="w-3 h-3 rounded-full bg-primary-container"></div>
+<div class="w-3 h-3 rounded-full bg-secondary"></div>
+</div>
+<span class="font-label-bold text-label-bold text-secondary">READY TO START</span>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-4 bg-surface-container p-4 border-2 border-charcoal">
+<span class="material-symbols-outlined text-primary" data-icon="check_box">check_box</span>
+<span class="font-body-md font-bold">Create your account</span>
+<span class="ml-auto bg-charcoal text-white text-[10px] px-2 py-0.5">STEP 1</span>
+</div>
+<div class="flex items-center gap-4 bg-surface-container p-4 border-2 border-charcoal translate-x-4">
+<span class="material-symbols-outlined text-secondary" data-icon="check_box_outline_blank">check_box_outline_blank</span>
+<span class="font-body-md font-bold">Create your workspace</span>
+<span class="ml-auto bg-primary-container text-charcoal text-[10px] px-2 py-0.5">STEP 2</span>
+</div>
+<div class="h-12 bg-surface-container border-2 border-dashed border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-outline" data-icon="add">add</span>
+</div>
+</div>
+</div>
+</div>
+</header>
+<section class="py-24 bg-surface-container-low border-y-2 border-charcoal">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="mb-16 text-center md:text-left">
+<h2 class="font-headline-xl text-headline-xl text-on-surface mb-4">One Workspace for Every Team</h2>
+<div class="w-24 h-2 bg-primary-container border-2 border-charcoal mb-6"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<div class="md:col-span-8 bg-white border-2 border-charcoal p-8 velocity-card-shadow">
+<div class="flex flex-col md:flex-row gap-8 items-center">
+<div class="flex-1">
+<h3 class="font-headline-lg text-headline-lg mb-4">Unified Command Center</h3>
+<p class="text-on-surface-variant font-body-md mb-6">Your docs, tasks, and roadmaps living in perfect harmony. No more tab hopping, just pure execution.</p>
+<ul class="space-y-3 font-body-md">
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container fill-current" data-icon="rocket_launch" style="font-variation-settings: 'FILL' 1;">rocket_launch</span> Native documentation tools</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container fill-current" data-icon="speed" style="font-variation-settings: 'FILL' 1;">speed</span> Integrated performance tracking</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container fill-current" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span> Permission-based team views</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="md:col-span-4 bg-primary-container border-2 border-charcoal p-8 flex flex-col justify-between velocity-card-shadow">
+<div>
+<span class="material-symbols-outlined text-4xl mb-4" data-icon="bolt">bolt</span>
+<h3 class="font-headline-lg text-headline-lg mb-2">Built for Speed</h3>
+<p class="font-body-md">Every interaction is optimized for high performance. Because waiting is for the competition.</p>
+</div>
+<div class="mt-8 bg-charcoal text-white p-4 font-label-bold text-label-bold">
+START YOUR JOURNEY
+</div>
+</div>
+<div class="md:col-span-4 bg-charcoal text-white border-2 border-charcoal p-8 velocity-card-shadow">
+<h3 class="font-headline-lg text-headline-lg mb-4">Connect Everything</h3>
+<div class="flex flex-wrap gap-3">
+<span class="bg-white/10 px-3 py-1 text-label-bold">GITHUB</span>
+<span class="bg-white/10 px-3 py-1 text-label-bold">SLACK</span>
+<span class="bg-white/10 px-3 py-1 text-label-bold">FIGMA</span>
+<span class="bg-white/10 px-3 py-1 text-label-bold">JIRA</span>
+<span class="bg-white/10 px-3 py-1 text-label-bold">NOTION</span>
+</div>
+<p class="mt-6 font-body-sm opacity-80">And 500+ other tools via Zapier &amp; API.</p>
+</div>
+<div class="md:col-span-8 bg-white border-2 border-charcoal p-8 velocity-card-shadow overflow-hidden group">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-lg text-headline-lg mb-2">Deep Focus Mode</h3>
+<p class="text-on-surface-variant font-body-md">Silence the noise. Our algorithm prioritizes what actually moves the needle.</p>
+</div>
+<div class="w-16 h-16 bg-surface-container rounded-full flex items-center justify-center border-2 border-charcoal group-hover:rotate-12 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="filter_center_focus">filter_center_focus</span>
+</div>
+</div>
+<div class="mt-8 h-32 bg-surface-container border-2 border-charcoal flex items-end p-4">
+<div class="w-full h-full flex items-end gap-1">
+<div class="flex-1 bg-primary-container border-t-2 border-x-2 border-charcoal h-[0%]"></div>
+<div class="flex-1 bg-primary-container border-t-2 border-x-2 border-charcoal h-[0%]"></div>
+<div class="flex-1 bg-primary-container border-t-2 border-x-2 border-charcoal h-[0%]"></div>
+<div class="flex-1 bg-primary-container border-t-2 border-x-2 border-charcoal h-[0%]"></div>
+<div class="flex-1 bg-primary-container border-t-2 border-x-2 border-charcoal h-[0%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-24 bg-charcoal text-white overflow-hidden">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="text-center mb-16">
+<h2 class="font-headline-xl text-headline-xl mb-4">Visualize Success</h2>
+<p class="font-body-lg text-white/70 max-w-2xl mx-auto">Our Kanban boards aren't just lists; they're high-octane visualizations of your team's throughput.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="space-y-4">
+<div class="flex justify-between items-center border-b-2 border-white/20 pb-4">
+<span class="font-headline-md text-headline-md">READY</span>
+<span class="bg-white/10 px-2 py-0.5 font-label-bold text-label-bold">0</span>
+</div>
+<div class="text-center text-on-surface-variant py-8">
+No tasks yet. Create your first task to get started!
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center border-b-2 border-primary-container pb-4">
+<span class="font-headline-md text-headline-md text-primary-container">IN PROGRESS</span>
+<span class="bg-primary-container text-charcoal px-2 py-0.5 font-label-bold text-label-bold">0</span>
+</div>
+<div class="text-center text-on-surface-variant py-8">
+Start working on tasks to see progress here.
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center border-b-2 border-white/20 pb-4">
+<span class="font-headline-md text-headline-md">SHIPPED</span>
+<span class="bg-white/10 px-2 py-0.5 font-label-bold text-label-bold">0</span>
+</div>
+<div class="text-center text-on-surface-variant py-8">
+Complete tasks will appear here.
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-32 bg-primary-container border-t-2 border-charcoal relative">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
+<h2 class="font-headline-xl text-headline-xl text-charcoal mb-8 leading-none">READY TO INCREASE YOUR VELOCITY?</h2>
+<p class="font-body-lg text-charcoal/80 mb-12 max-w-xl mx-auto font-medium">Join high-performing teams who have already switched. No credit card required. No friction. Just flow.</p>
+<div class="flex flex-col md:flex-row gap-6 justify-center">
+<button class="bg-charcoal text-white font-headline-md text-headline-md px-12 py-6 border-2 border-white velocity-card-shadow">
+Get Started for Free
+</button>
+</div>
+</div>
+</div>
+<span class="absolute top-10 left-10 text-charcoal/10 text-9xl font-black select-none pointer-events-none">FAST</span>
+<span class="absolute bottom-10 right-10 text-charcoal/10 text-9xl font-black select-none pointer-events-none">MOVE</span>
+</section>
+<footer class="bg-surface-container-highest border-t-2 border-charcoal py-16 px-margin-mobile md:px-margin-desktop">
+<div class="max-w-container-max mx-auto grid grid-cols-2 md:grid-cols-4 gap-12">
+<div class="col-span-2 md:col-span-1">
+<span class="font-headline-md text-headline-md font-black text-on-surface mb-6 block">VelocityTask</span>
+<p class="text-body-sm text-on-surface-variant max-w-xs">
+The productivity engine for those who don't wait. Built with passion for teams with purpose.
+</p>
+</div>
+<div class="flex flex-col gap-4">
+<h6 class="font-label-bold text-label-bold text-charcoal">PRODUCT</h6>
+<a class="text-body-sm hover:underline" href="#">Features</a>
+<a class="text-body-sm hover:underline" href="#">Integrations</a>
+<a class="text-body-sm hover:underline" href="#">Enterprise</a>
+</div>
+<div class="flex flex-col gap-4">
+<h6 class="font-label-bold text-label-bold text-charcoal">RESOURCES</h6>
+<a class="text-body-sm hover:underline" href="#">Guides</a>
+<a class="text-body-sm hover:underline" href="#">API Docs</a>
+<a class="text-body-sm hover:underline" href="#">Support</a>
+</div>
+<div class="flex flex-col gap-4">
+<h6 class="font-label-bold text-label-bold text-charcoal">LEGAL</h6>
+<a class="text-body-sm hover:underline" href="#">Privacy</a>
+<a class="text-body-sm hover:underline" href="#">Terms</a>
+<a class="text-body-sm hover:underline" href="#">Security</a>
+</div>
+</div>
+<div class="max-w-container-max mx-auto mt-16 pt-8 border-t border-outline flex flex-col md:flex-row justify-between items-center gap-4">
+<span class="text-body-sm text-on-surface-variant">© 2024 VelocityTask. All rights reserved.</span>
+</div>
+</footer>
+<script>
+    document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('mousedown', () => {
+            btn.classList.add('scale-95');
+        });
+        btn.addEventListener('mouseup', () => {
+            btn.classList.remove('scale-95');
+        });
+        btn.addEventListener('mouseleave', () => {
+            btn.classList.remove('scale-95');
+        });
+    });
+</script>
+</body></html>

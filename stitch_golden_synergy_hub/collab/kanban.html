@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Collab | Kanban</title>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800;900&amp;family=Work+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+    theme: {
+      extend: {
+        "colors": {
+                "primary": "#795900",
+                "primary-container": "#fbbf24",
+                "on-surface": "#191c1e",
+                "surface": "#f8f9fb",
+                "surface-variant": "#e1e2e4",
+                "charcoal": "#1F2937"
+        }
+      }
+    }
+  }
+</script>
+<style>
+    .task-card { transition: all 0.2s ease; }
+    .task-card:hover { transform: translate(-4px, -4px); box-shadow: 4px 4px 0px 0px #1F2937; }
+</style>
+</head>
+<body class="bg-surface text-on-surface font-sans min-h-screen">
+<div id="app" class="hidden">
+<header class="bg-white border-b-2 border-charcoal h-16 flex justify-between items-center px-6">
+<h1 class="text-xl font-bold text-charcoal">Collab Board</h1>
+<div class="flex items-center gap-3">
+<span class="text-sm font-medium" id="user-name"></span>
+<a href="profile.html" class="border-2 border-charcoal px-2 py-1 text-sm font-bold hover:bg-charcoal hover:text-white transition-colors">Profile</a>
+<button class="border-2 border-charcoal px-3 py-1 text-sm font-bold hover:bg-charcoal hover:text-white transition-colors" id="logout-btn">Logout</button>
+</div>
+</header>
+<main class="p-6">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+<div class="bg-white border-2 border-charcoal p-4">
+<h3 class="font-bold mb-2">To Do</h3>
+<div id="todo-list" class="space-y-2 min-h-96"></div>
+<button class="w-full border-2 border-dashed border-charcoal py-2 text-sm font-bold hover:bg-surface-variant mt-2" onclick="openTaskModal('todo')">+ Add Task</button>
+</div>
+<div class="bg-white border-2 border-charcoal p-4">
+<h3 class="font-bold mb-2">In Progress</h3>
+<div id="inprogress-list" class="space-y-2 min-h-96"></div>
+<button class="w-full border-2 border-dashed border-charcoal py-2 text-sm font-bold hover:bg-surface-variant mt-2" onclick="openTaskModal('in_progress')">+ Add Task</button>
+</div>
+<div class="bg-white border-2 border-charcoal p-4">
+<h3 class="font-bold mb-2">Review</h3>
+<div id="review-list" class="space-y-2 min-h-96"></div>
+<button class="w-full border-2 border-dashed border-charcoal py-2 text-sm font-bold hover:bg-surface-variant mt-2" onclick="openTaskModal('under_review')">+ Add Task</button>
+</div>
+<div class="bg-white border-2 border-charcoal p-4">
+<h3 class="font-bold mb-2">Done</h3>
+<div id="done-list" class="space-y-2 min-h-96"></div>
+<button class="w-full border-2 border-dashed border-charcoal py-2 text-sm font-bold hover:bg-surface-variant mt-2" onclick="openTaskModal('completed')">+ Add Task</button>
+</div>
+</div>
+</main>
+</div>
+
+<div id="auth-check" class="min-h-screen flex items-center justify-center">
+<p>Redirecting to <a href="index.html" class="text-primary font-bold">login</a>...</p>
+</div>
+
+<div id="task-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+<div class="bg-white border-2 border-charcoal p-6 w-full max-w-lg">
+<h2 class="text-xl font-bold mb-4" id="modal-title">Add Task</h2>
+<form id="task-form" class="space-y-4">
+<input type="hidden" id="task-id"/>
+<input type="hidden" id="task-status"/>
+<div>
+<label for="task-title" class="block font-bold text-sm mb-1">Title</label>
+<input type="text" id="task-title" title="Task title" placeholder="Task title" required class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary"/>
+</div>
+<div>
+<label for="task-desc" class="block font-bold text-sm mb-1">Description</label>
+<textarea id="task-desc" title="Task description" placeholder="Task description" rows="3" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary"></textarea>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label for="task-priority" class="block font-bold text-sm mb-1">Priority</label>
+<select id="task-priority" title="Task priority" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary">
+<option value="low">Low</option>
+<option value="medium">Medium</option>
+<option value="high">High</option>
+<option value="urgent">Urgent</option>
+</select>
+</div>
+<div>
+<label for="task-status-select" class="block font-bold text-sm mb-1">Status</label>
+<select id="task-status-select" title="Task status" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary">
+<option value="todo">To Do</option>
+<option value="in_progress">In Progress</option>
+<option value="under_review">Review</option>
+<option value="completed">Done</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4">
+<div>
+<label for="task-start" class="block font-bold text-sm mb-1">Start Date</label>
+<input type="date" id="task-start" title="Start date" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary"/>
+</div>
+<div>
+<label for="task-end" class="block font-bold text-sm mb-1">End Date</label>
+<input type="date" id="task-end" title="End date" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary"/>
+</div>
+<div>
+<label for="task-due" class="block font-bold text-sm mb-1">Deadline</label>
+<input type="date" id="task-due" title="Deadline" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary"/>
+</div>
+</div>
+<div>
+<label for="task-coordinator" class="block font-bold text-sm mb-1">Coordinator</label>
+<input type="text" id="task-coordinator" title="Coordinator name" placeholder="Coordinator name" class="w-full border-2 border-charcoal px-3 py-2 focus:border-primary"/>
+</div>
+<div class="flex gap-2">
+<button type="submit" class="flex-1 bg-primary-container text-charcoal font-bold py-2 border-2 border-charcoal">Save</button>
+<button type="button" onclick="closeTaskModal()" class="flex-1 border-2 border-charcoal py-2">Cancel</button>
+</div>
+</form>
+</div>
+</div>
+
+<script>
+const token = localStorage.getItem('token');
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+if (!token) {
+    document.getElementById('auth-check').innerHTML = '<p>Redirecting to <a href="index.html" class="text-primary font-bold">login</a>...</p>';
+    setTimeout(() => window.location.href = 'index.html', 1000);
+} else {
+    document.getElementById('app').classList.remove('hidden');
+    document.getElementById('user-name').textContent = user.name || 'User';
+    loadTasks();
+}
+
+async function loadTasks() {
+    try {
+        const res = await fetch('/api/tasks', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const tasks = await res.json();
+        
+        const todo = tasks.filter(t => t.status === 'todo');
+        const inprogress = tasks.filter(t => t.status === 'in_progress');
+        const review = tasks.filter(t => t.status === 'under_review');
+        const done = tasks.filter(t => t.status === 'completed');
+        
+        renderTasks('todo-list', todo);
+        renderTasks('inprogress-list', inprogress);
+        renderTasks('review-list', review);
+        renderTasks('done-list', done);
+    } catch (err) {
+        console.log('No tasks or error loading');
+    }
+}
+
+function renderTasks(listId, tasks) {
+    const el = document.getElementById(listId);
+    el.innerHTML = tasks.map(task => `
+        <div class="task-card bg-white border-2 border-charcoal p-3 cursor-pointer" onclick="editTask('${task._id}')">
+            <h4 class="font-bold text-sm">${task.title}</h4>
+            <p class="text-xs text-gray-600 mt-1">${task.description || ''}</p>
+            <div class="text-xs mt-1 space-y-1">
+                ${task.startDate ? `<span>Start: ${new Date(task.startDate).toLocaleDateString()}</span>` : ''}
+                ${task.endDate ? `<span>End: ${new Date(task.endDate).toLocaleDateString()}</span>` : ''}
+                ${task.dueDate ? `<span>Deadline: ${new Date(task.dueDate).toLocaleDateString()}</span>` : ''}
+                ${task.coordinator ? `<span>Coordinator: ${task.coordinator}</span>` : ''}
+            </div>
+            <div class="flex justify-between items-center mt-2">
+                <span class="text-xs px-2 py-0.5 bg-charcoal text-white">${task.priority}</span>
+                <button onclick="deleteTask('${task._id}', event)" class="text-red-600 text-xs">Delete</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function openTaskModal(status) {
+    document.getElementById('task-modal').classList.remove('hidden');
+    document.getElementById('task-status').value = status;
+    document.getElementById('task-status-select').value = status;
+    document.getElementById('modal-title').textContent = 'Add Task';
+    document.getElementById('task-form').reset();
+}
+
+function closeTaskModal() {
+    document.getElementById('task-modal').classList.add('hidden');
+}
+
+async function editTask(id) {
+    try {
+        const res = await fetch('/api/tasks/' + id, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const task = await res.json();
+        document.getElementById('task-id').value = task._id;
+        document.getElementById('task-title').value = task.title;
+        document.getElementById('task-desc').value = task.description || '';
+        document.getElementById('task-priority').value = task.priority || 'medium';
+        document.getElementById('task-status').value = task.status;
+        document.getElementById('task-status-select').value = task.status;
+        document.getElementById('task-due').value = task.dueDate ? task.dueDate.split('T')[0] : '';
+        document.getElementById('task-start').value = task.startDate ? task.startDate.split('T')[0] : '';
+        document.getElementById('task-end').value = task.endDate ? task.endDate.split('T')[0] : '';
+        document.getElementById('task-coordinator').value = task.coordinator || '';
+        document.getElementById('task-modal').classList.remove('hidden');
+        document.getElementById('modal-title').textContent = 'Edit Task';
+    } catch (err) {}
+}
+
+async function deleteTask(id, e) {
+    e.stopPropagation();
+    if (confirm('Delete this task?')) {
+        await fetch('/api/tasks/' + id, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        loadTasks();
+    }
+}
+
+document.getElementById('task-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('task-id').value;
+    const task = {
+        title: document.getElementById('task-title').value,
+        description: document.getElementById('task-desc').value,
+        priority: document.getElementById('task-priority').value,
+        status: document.getElementById('task-status-select').value,
+        dueDate: document.getElementById('task-due').value || null,
+        startDate: document.getElementById('task-start').value || null,
+        endDate: document.getElementById('task-end').value || null,
+        coordinator: document.getElementById('task-coordinator').value || ''
+    };
+    
+    const method = id ? 'PUT' : 'POST';
+    const url = id ? '/api/tasks/' + id : '/api/tasks';
+    
+    await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(task)
+    });
+    closeTaskModal();
+    loadTasks();
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'index.html';
+});
+
+loadTasks();
+setInterval(loadTasks, 3000);
+</script>
+</body>
+</html>

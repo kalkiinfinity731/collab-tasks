@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VelocityTask | Kanban Board</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@700;800;900&amp;family=Work+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "tertiary-container": "#ffbb65",
+                  "on-surface": "#191c1e",
+                  "surface": "#f8f9fb",
+                  "surface-dim": "#d9dadc",
+                  "inverse-on-surface": "#f0f1f3",
+                  "surface-container-lowest": "#ffffff",
+                  "outline-variant": "#d3c5ac",
+                  "on-tertiary": "#ffffff",
+                  "secondary-fixed-dim": "#bdc7d9",
+                  "on-secondary-fixed": "#121c2a",
+                  "on-tertiary-fixed": "#2a1700",
+                  "surface-variant": "#e1e2e4",
+                  "on-background": "#191c1e",
+                  "on-primary-container": "#6c4f00",
+                  "tertiary-fixed-dim": "#ffb95f",
+                  "primary-fixed": "#ffdf9f",
+                  "on-error-container": "#93000a",
+                  "on-primary": "#ffffff",
+                  "on-primary-fixed-variant": "#5c4300",
+                  "primary": "#795900",
+                  "secondary-container": "#d6e0f3",
+                  "on-secondary-container": "#596373",
+                  "primary-fixed-dim": "#f9bd22",
+                  "secondary": "#555f6f",
+                  "on-surface-variant": "#4f4633",
+                  "tertiary-fixed": "#ffddb8",
+                  "on-secondary": "#ffffff",
+                  "inverse-surface": "#2e3132",
+                  "surface-container-low": "#f3f4f6",
+                  "surface-bright": "#f8f9fb",
+                  "surface-container-highest": "#e1e2e4",
+                  "inverse-primary": "#f9bd22",
+                  "on-secondary-fixed-variant": "#3d4756",
+                  "secondary-fixed": "#d9e3f6",
+                  "primary-container": "#fbbf24",
+                  "on-primary-fixed": "#261a00",
+                  "background": "#f8f9fb",
+                  "surface-container": "#edeef0",
+                  "error-container": "#ffdad6",
+                  "on-tertiary-container": "#764a00",
+                  "surface-container-high": "#e7e8ea",
+                  "surface-tint": "#795900",
+                  "outline": "#817661",
+                  "on-error": "#ffffff",
+                  "on-tertiary-fixed-variant": "#653e00",
+                  "error": "#ba1a1a",
+                  "tertiary": "#855300",
+                  "charcoal": "#1F2937",
+                  "golden": "#FBBF24"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.125rem",
+                  "lg": "0.25rem",
+                  "xl": "0.5rem",
+                  "full": "0.75rem"
+          },
+          "spacing": {
+                  "gutter": "24px",
+                  "base": "8px",
+                  "margin-mobile": "16px",
+                  "margin-desktop": "40px",
+                  "container-max": "1280px"
+          },
+          "fontFamily": {
+                  "headline-lg": ["Hanken Grotesk"],
+                  "headline-xl": ["Hanken Grotesk"],
+                  "headline-md": ["Hanken Grotesk"],
+                  "body-sm": ["Work Sans"],
+                  "label-sm": ["JetBrains Mono"],
+                  "body-lg": ["Work Sans"],
+                  "label-bold": ["JetBrains Mono"],
+                  "body-md": ["Work Sans"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .kanban-column {
+        min-width: 320px;
+        max-width: 320px;
+    }
+    .task-card {
+        transition: transform 0.1s ease-in-out;
+        position: relative;
+    }
+    .task-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: #FBBF24;
+        z-index: -1;
+        transform: translate(0, 0);
+        transition: transform 0.1s ease-in-out;
+    }
+    .task-card:hover {
+        transform: translate(-4px, -4px);
+    }
+    .task-card:hover::after {
+        transform: translate(8px, 8px);
+    }
+    .progress-track {
+        background-image: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(0, 0, 0, 0.05) 10px,
+            rgba(0, 0, 0, 0.05) 20px
+        );
+    }
+</style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex">
+<aside class="hidden md:flex flex-col h-screen w-64 bg-surface-container-low border-r-2 border-outline">
+<div class="p-6">
+<h1 class="font-headline-md text-headline-md font-extrabold text-on-surface tracking-tighter">VelocityTask</h1>
+<p class="text-on-surface-variant font-label-bold text-xs mt-1 uppercase">High-Energy Mode</p>
+</div>
+<nav class="flex-1 px-2 space-y-1">
+<a class="flex items-center text-on-surface-variant px-4 py-3 hover:bg-surface-variant group" href="#">
+<span class="material-symbols-outlined mr-3 group-hover:text-primary">workspaces</span>
+<span class="font-body-md font-medium">Workspaces</span>
+</a>
+<a class="flex items-center text-on-surface-variant px-4 py-3 hover:bg-surface-variant group" href="#">
+<span class="material-symbols-outlined mr-3 group-hover:text-primary">chat</span>
+<span class="font-body-md font-medium">Active Chat</span>
+</a>
+<a class="flex items-center bg-primary-container text-on-primary-container border-r-4 border-primary font-bold px-4 py-3" href="#">
+<span class="material-symbols-outlined mr-3" style="font-variation-settings: 'FILL' 1;">view_kanban</span>
+<span class="font-body-md">Kanban Boards</span>
+</a>
+<a class="flex items-center text-on-surface-variant px-4 py-3 hover:bg-surface-variant group" href="#">
+<span class="material-symbols-outlined mr-3 group-hover:text-primary">speed</span>
+<span class="font-body-md font-medium">Dashboards</span>
+</a>
+<a class="flex items-center text-on-surface-variant px-4 py-3 hover:bg-surface-variant group" href="#">
+<span class="material-symbols-outlined mr-3 group-hover:text-primary">admin_panel_settings</span>
+<span class="font-body-md font-medium">Admin</span>
+</a>
+</nav>
+<div class="p-4">
+<button class="w-full bg-primary-container text-on-primary-container font-bold py-4 px-4 flex items-center justify-center border-2 border-charcoal shadow-[4px_4px_0px_0px_rgba(31,41,55,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(31,41,55,1)] transition-all">
+<span class="material-symbols-outlined mr-2">add_circle</span>
+New Task
+</button>
+</div>
+<div class="mt-auto border-t border-outline-variant p-2 space-y-1">
+<a class="flex items-center text-on-surface-variant px-4 py-2 hover:bg-surface-variant" href="#">
+<span class="material-symbols-outlined mr-3">settings</span>
+<span class="font-body-md">Settings</span>
+</a>
+<a class="flex items-center text-on-surface-variant px-4 py-2 hover:bg-surface-variant" href="#">
+<span class="material-symbols-outlined mr-3">logout</span>
+<span class="font-body-md">Logout</span>
+</a>
+</div>
+</aside>
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+<header class="bg-surface-container-lowest h-16 flex justify-between items-center px-margin-desktop border-b-2 border-outline shrink-0">
+<div class="flex items-center gap-6">
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Team Workspace</h2>
+<div class="hidden lg:flex items-center bg-surface-container rounded px-4 py-2 border-2 border-charcoal">
+<span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-64" placeholder="Search tasks..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined p-2 hover:bg-surface-container transition-colors rounded">notifications</button>
+<button class="material-symbols-outlined p-2 hover:bg-surface-container transition-colors rounded">help</button>
+<div class="w-8 h-8 rounded bg-primary-fixed flex items-center justify-center border-2 border-charcoal overflow-hidden">
+<span class="material-symbols-outlined text-charcoal">person</span>
+</div>
+</div>
+</header>
+<div class="px-margin-desktop pt-8 pb-4 flex justify-between items-end shrink-0">
+<div>
+<nav class="flex text-label-sm uppercase tracking-widest text-on-surface-variant mb-2">
+<span>Projects</span>
+<span class="mx-2">/</span>
+<span class="text-on-surface font-bold">Your First Project</span>
+</nav>
+<h1 class="font-headline-xl text-headline-xl text-charcoal">Kanban Board</h1>
+</div>
+<div class="flex gap-4">
+<button class="border-2 border-charcoal bg-white px-4 py-2 font-bold hover:bg-surface-variant transition-colors flex items-center">
+<span class="material-symbols-outlined mr-2">filter_list</span>
+Filter
+</button>
+</div>
+</div>
+<div class="flex-1 overflow-x-auto p-margin-desktop pt-4">
+<div class="flex gap-gutter h-full items-start">
+<div class="kanban-column flex flex-col h-full bg-surface-container-low border-2 border-charcoal p-4">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-charcoal flex items-center">
+To Do
+<span class="ml-3 bg-charcoal text-white text-[12px] px-2 py-1">0</span>
+</h3>
+<button class="material-symbols-outlined text-charcoal">more_horiz</button>
+</div>
+<div class="flex-1 overflow-y-auto space-y-6 pr-2">
+<button class="w-full border-2 border-dashed border-outline text-on-surface-variant py-4 font-bold hover:bg-surface-variant transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined mr-2">add</span>
+Add Task
+</button>
+</div>
+</div>
+<div class="kanban-column flex flex-col h-full bg-surface-container-low border-2 border-charcoal p-4">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-charcoal flex items-center">
+In Progress
+<span class="ml-3 bg-golden text-charcoal text-[12px] px-2 py-1 border border-charcoal">0</span>
+</h3>
+<button class="material-symbols-outlined text-charcoal">more_horiz</button>
+</div>
+<div class="flex-1 overflow-y-auto space-y-6 pr-2">
+<button class="w-full border-2 border-dashed border-outline text-on-surface-variant py-4 font-bold hover:bg-surface-variant transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined mr-2">add</span>
+Add Task
+</button>
+</div>
+</div>
+<div class="kanban-column flex flex-col h-full bg-surface-container-low border-2 border-charcoal p-4">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-charcoal flex items-center">
+Under Review
+<span class="ml-3 bg-charcoal text-white text-[12px] px-2 py-1">0</span>
+</h3>
+<button class="material-symbols-outlined text-charcoal">more_horiz</button>
+</div>
+<div class="flex-1 overflow-y-auto space-y-6 pr-2">
+<button class="w-full border-2 border-dashed border-outline text-on-surface-variant py-4 font-bold hover:bg-surface-variant transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined mr-2">add</span>
+Add Task
+</button>
+</div>
+</div>
+<div class="kanban-column flex flex-col h-full bg-surface-container-low border-2 border-charcoal p-4 opacity-75">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-charcoal flex items-center">
+Completed
+<span class="ml-3 bg-secondary text-white text-[12px] px-2 py-1">0</span>
+</h3>
+<button class="material-symbols-outlined text-charcoal">more_horiz</button>
+</div>
+<div class="flex-1 overflow-y-auto space-y-6 pr-2">
+<button class="w-full border-2 border-dashed border-outline text-on-surface-variant py-4 font-bold hover:bg-surface-variant transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined mr-2">add</span>
+Add Task
+</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+    document.querySelectorAll('.task-card').forEach(card => {
+        card.addEventListener('mousedown', () => {
+            card.style.transform = 'translate(2px, 2px)';
+            card.classList.add('shadow-none');
+        });
+        card.addEventListener('mouseup', () => {
+            card.style.transform = 'translate(-4px, -4px)';
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+        });
+    });
+</script>
+</body></html>
