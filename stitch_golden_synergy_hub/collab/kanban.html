@@ -341,7 +341,7 @@ async function viewTask(id) {
             <div><span class="font-bold">Recurring:</span> ${task.recurring || 'None'}</div>
             <div><span class="font-bold">Subtasks:</span> ${task.subtasks && task.subtasks.length > 0 ? task.subtasks.filter(s => s.completed).length + '/' + task.subtasks.length + ' completed' : 'None'}</div>
             <div><span class="font-bold">Attachments:</span> ${task.attachments && task.attachments.length > 0 ? task.attachments.map(a => `<a href="${a.url}" target="_blank" class="text-primary">${a.name}</a>`).join(', ') : 'None'}</div>
-            <div><span class="font-bold">Comments:</span> ${task.comments && task.comments.length > 0 ? task.comments.length : 'None'}</div>
+            <div><span class="font-bold">Comments:</span> ${task.comments && task.comments.length > 0 ? task.comments.map(c => `<div><strong>${c.author}:</strong> ${c.text} <span class="text-gray-400">${new Date(c.createdAt).toLocaleString()}</span></div>`).join('') : 'None'}</div>
             <div><span class="font-bold">Time Spent:</span> ${Math.round((task.totalTimeSpent || 0) / 60)}h</div>
         `;
         document.getElementById('task-details-modal').classList.remove('hidden');
@@ -386,9 +386,9 @@ function renderSubtasks(subtasks) {
     const el = document.getElementById('subtasks-list');
     el.innerHTML = subtasks.map((st, i) => `
         <div class="flex items-center gap-2">
-            <input type="checkbox" ${st.completed ? 'checked' : ''} onchange="toggleSubtask(${i})" class="accent-charcoal"/>
+            <input type="checkbox" ${st.completed ? 'checked' : ''} onchange="toggleSubtaskWrapper(${i})" class="accent-charcoal"/>
             <span class="flex-1 text-sm ${st.completed ? 'line-through text-gray-500' : ''}">${st.title}</span>
-            <button type="button" onclick="removeSubtask(${i})" class="text-red-600 text-xs">x</button>
+            <button type="button" onclick="removeSubtaskWrapper(${i})" class="text-red-600 text-xs">x</button>
         </div>
     `).join('');
 }
@@ -399,7 +399,7 @@ function renderAttachments(attachments) {
         <div class="flex items-center gap-2">
             <span class="flex-1 text-sm truncate">${att.name}</span>
             <a href="${att.url}" target="_blank" class="text-xs text-primary">View</a>
-            <button type="button" onclick="removeAttachment(${i})" class="text-red-600 text-xs">x</button>
+            <button type="button" onclick="removeAttachmentWrapper(${i})" class="text-red-600 text-xs">x</button>
         </div>
     `).join('');
 }
@@ -414,67 +414,137 @@ function renderComments(comments) {
     `).join('');
 }
 
-document.getElementById('add-subtask-btn').addEventListener('click', async () => {
-    const title = prompt('Subtask title:');
-    if (!title) return;
-    const id = document.getElementById('task-id').value || await ensureTaskId();
-    fetch('/api/tasks/' + id + '/subtasks', {
+async function ensureTaskId() {
+    let id = document.getElementById('task-id').value;
+    if (id) return id;
+    const task = {
+        title: document.getElementById('task-title').value || 'Untitled Task',
+        description: document.getElementById('task-desc').value || '',
+        priority: document.getElementById('task-priority').value || 'medium',
+        status: document.getElementById('task-status-select').value || 'todo',
+        dueDate: document.getElementById('task-due').value || null,
+        startDate: document.getElementById('task-start').value || null,
+        endDate: document.getElementById('task-end').value || null,
+        coordinator: document.getElementById('task-coordinator').value || '',
+        recurring: document.getElementById('task-recurring').value || 'none',
+        assignee: document.getElementById('task-assignee').value || null
+    };
+    const res = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ title })
-    }).then(r => r.json()).then(task => renderSubtasks(task.subtasks || []));
-});
+        body: JSON.stringify(task)
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to create task');
+    }
+    const data = await res.json();
+    document.getElementById('task-id').value = data._id;
+    document.getElementById('modal-title').textContent = 'Edit Task';
+    return data._id;
+}
 
-window.removeSubtask = async (index) => {
-    const id = document.getElementById('task-id').value || await ensureTaskId();
-    fetch('/api/tasks/' + id + '/subtasks/' + index, {
-        method: 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + token }
-    }).then(r => r.json()).then(task => renderSubtasks(task.subtasks || []));
-};
+async function addSubtask() {
+    const title = prompt('Subtask title:');
+    if (!title) return;
+    try {
+        const id = document.getElementById('task-id').value || await ensureTaskId();
+        const res = await fetch('/api/tasks/' + id + '/subtasks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ title })
+        });
+        if (!res.ok) throw new Error('Failed to add subtask');
+        const task = await res.json();
+        renderSubtasks(task.subtasks || []);
+    } catch (err) {
+        alert(err.message);
+    }
+}
 
-window.toggleSubtask = async (index) => {
-    const id = document.getElementById('task-id').value || await ensureTaskId();
-    fetch('/api/tasks/' + id + '/subtasks/' + index, {
-        method: 'PATCH',
-        headers: { 'Authorization': 'Bearer ' + token }
-    }).then(r => r.json()).then(task => renderSubtasks(task.subtasks || []));
-};
+async function removeSubtaskWrapper(index) {
+    try {
+        const id = document.getElementById('task-id').value || await ensureTaskId();
+        const res = await fetch('/api/tasks/' + id + '/subtasks/' + index, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!res.ok) throw new Error('Failed to remove subtask');
+        const task = await res.json();
+        renderSubtasks(task.subtasks || []);
+    } catch (err) {
+        alert(err.message);
+    }
+}
 
-document.getElementById('add-attachment-btn').addEventListener('click', async () => {
+async function toggleSubtaskWrapper(index) {
+    try {
+        const id = document.getElementById('task-id').value || await ensureTaskId();
+        const res = await fetch('/api/tasks/' + id + '/subtasks/' + index, {
+            method: 'PATCH',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!res.ok) throw new Error('Failed to toggle subtask');
+        const task = await res.json();
+        renderSubtasks(task.subtasks || []);
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+async function addAttachment() {
     const name = prompt('Attachment name:');
     if (!name) return;
     const url = prompt('Attachment URL:');
     if (!url) return;
-    const id = document.getElementById('task-id').value || await ensureTaskId();
-    fetch('/api/tasks/' + id + '/attachments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ name, url })
-    }).then(r => r.json()).then(task => renderAttachments(task.attachments || []));
-});
+    try {
+        const id = document.getElementById('task-id').value || await ensureTaskId();
+        const res = await fetch('/api/tasks/' + id + '/attachments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ name, url })
+        });
+        if (!res.ok) throw new Error('Failed to add attachment');
+        const task = await res.json();
+        renderAttachments(task.attachments || []);
+    } catch (err) {
+        alert(err.message);
+    }
+}
 
-window.removeAttachment = async (index) => {
-    const id = document.getElementById('task-id').value || await ensureTaskId();
-    fetch('/api/tasks/' + id + '/attachments/' + index, {
-        method: 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + token }
-    }).then(r => r.json()).then(task => renderAttachments(task.attachments || []));
-};
+async function removeAttachmentWrapper(index) {
+    try {
+        const id = document.getElementById('task-id').value || await ensureTaskId();
+        const res = await fetch('/api/tasks/' + id + '/attachments/' + index, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!res.ok) throw new Error('Failed to remove attachment');
+        const task = await res.json();
+        renderAttachments(task.attachments || []);
+    } catch (err) {
+        alert(err.message);
+    }
+}
 
-document.getElementById('add-comment-btn').addEventListener('click', async () => {
+async function addComment() {
     const text = document.getElementById('comment-input').value.trim();
     if (!text) return;
-    const id = document.getElementById('task-id').value || await ensureTaskId();
-    fetch('/api/tasks/' + id + '/comments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ text })
-    }).then(r => r.json()).then(task => {
+    try {
+        const id = document.getElementById('task-id').value || await ensureTaskId();
+        const res = await fetch('/api/tasks/' + id + '/comments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ text })
+        });
+        if (!res.ok) throw new Error('Failed to add comment');
+        const task = await res.json();
         document.getElementById('comment-input').value = '';
         renderComments(task.comments || []);
-    });
-});
+    } catch (err) {
+        alert(err.message);
+    }
+}
 
 async function deleteTask(id, e) {
     e.stopPropagation();
@@ -530,6 +600,10 @@ document.getElementById('task-details-modal').addEventListener('click', (e) => {
         closeDetailsModal();
     }
 });
+
+document.getElementById('add-subtask-btn').addEventListener('click', addSubtask);
+document.getElementById('add-attachment-btn').addEventListener('click', addAttachment);
+document.getElementById('add-comment-btn').addEventListener('click', addComment);
 
 loadTasks();
 setInterval(loadTasks, 3000);
